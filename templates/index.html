@@ -1,0 +1,2881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LabSoft — Lab Report System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon has-image">
+      <img src="/static/logos/krisc-logo.jpeg" alt="Lab Logo"/>
+    </div>
+    <div>
+      <div class="logo-title">LabSoft</div>
+      <div class="logo-sub">Diagnostic System</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-item active" data-page="dashboard">
+      <span class="nav-icon">◈</span><span>Dashboard</span>
+    </button>
+    <button class="nav-item" data-page="patients">
+      <span class="nav-icon">◉</span><span>Patients</span>
+    </button>
+    <button class="nav-item" data-page="doctors">
+      <span class="nav-icon">✚</span><span>Doctors</span>
+    </button>
+    <button class="nav-item" data-page="reports">
+      <span class="nav-icon">◧</span><span>Reports</span>
+    </button>
+    <button class="nav-item" data-page="appointments">
+      <span class="nav-icon">📅</span><span>Appointments</span>
+    </button>
+    <button class="nav-item" data-page="tests">
+      <span class="nav-icon">🔬</span><span>Test Catalog</span>
+    </button>
+    <button class="nav-item" data-page="interpretations">
+      <span class="nav-icon">📝</span><span>Interpretations</span>
+    </button>
+    <button class="nav-item" data-page="reftables">
+      <span class="nav-icon">📊</span><span>Reference Tables</span>
+    </button>
+    <button class="nav-item" data-page="calculations">
+      <span class="nav-icon">🧮</span><span>Calculations</span>
+    </button>
+    <button class="nav-item" data-page="labtest">
+      <span class="nav-icon">🧾</span><span>Lab Test Bill</span>
+    </button>
+    <button class="nav-item" data-page="collections">
+      <span class="nav-icon">💰</span><span>Collections</span>
+    </button>
+    <button class="nav-item" data-page="stages">
+      <span class="nav-icon">🧪</span><span>Test Stages</span>
+    </button>
+    <button class="nav-item" data-page="otherlabtests">
+      <span class="nav-icon">➕</span><span>Other Lab Tests</span>
+    </button>
+    <button class="nav-item" data-page="settings">
+      <span class="nav-icon">⚙</span><span>Settings</span>
+    </button>
+    <button class="nav-item" data-page="backup">
+      <span class="nav-icon">💾</span><span>Backup</span>
+    </button>
+    <button class="nav-item" data-page="about">
+      <span class="nav-icon">ℹ</span><span>About</span>
+    </button>
+  </nav>
+  <div class="sidebar-footer">v1.0 · Offline Mode</div>
+</aside>
+ 
+<main class="main-content">
+  <header class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-actions" id="topbar-actions"></div>
+    <button class="exit-btn" onclick="if(confirm('Are you sure you want to exit LabSoft?')) window.close()" title="Exit Application">✕ Exit</button>
+  </header>
+ 
+  <div class="page active" id="page-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card" style="--accent:#3b82f6">
+        <div class="stat-icon">◉</div>
+        <div class="stat-val" id="stat-patients">0</div>
+        <div class="stat-label">Total Patients</div>
+      </div>
+      <div class="stat-card" style="--accent:#10b981">
+        <div class="stat-icon">◧</div>
+        <div class="stat-val" id="stat-reports">0</div>
+        <div class="stat-label">Total Reports</div>
+      </div>
+      <div class="stat-card" style="--accent:#f59e0b">
+        <div class="stat-icon">✚</div>
+        <div class="stat-val" id="stat-doctors">0</div>
+        <div class="stat-label">Doctors</div>
+      </div>
+      <div class="stat-card" style="--accent:#ec4899">
+        <div class="stat-icon">◈</div>
+        <div class="stat-val" id="stat-today">0</div>
+        <div class="stat-label">Reports Today</div>
+      </div>
+      <div class="stat-card" style="--accent:#8b5cf6">
+        <div class="stat-icon">📅</div>
+        <div class="stat-val" id="stat-appts">0</div>
+        <div class="stat-label">Appointments Today</div>
+      </div>
+    </div>
+    <div class="dashboard-grid">
+      <div class="dash-card">
+        <div class="dash-card-title">Quick Actions</div>
+        <div class="quick-actions">
+          <button class="quick-btn" onclick="showPage('patients');setTimeout(()=>document.getElementById('add-patient-btn').click(),200)">
+            <span>+</span> New Patient
+          </button>
+          <button class="quick-btn" onclick="showPage('appointments');setTimeout(()=>document.getElementById('add-appt-btn').click(),200)">
+            <span>+</span> Book Appointment
+          </button>
+        </div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Recent Reports</div>
+        <div id="recent-reports-list" class="recent-list"></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Reports — Last 7 Days</div>
+        <canvas id="chart-daily" height="160"></canvas>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Report Status Breakdown</div>
+        <canvas id="chart-status" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="page" id="page-patients">
+    <div class="page-toolbar">
+      <input type="search" class="search-input" id="patient-search" placeholder="Search patients..."/>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="add-patient-btn" onclick="openModal('patient-modal')">+ Add Patient</button>
+        <div class="dropdown" style="position:relative;">
+          <button class="btn btn-outline" onclick="toggleDropdown('patients-dl-menu','import_export')">⬇ Download ▾</button>
+          <div id="patients-dl-menu" class="dropdown-menu" style="display:none;position:absolute;right:0;top:110%;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:200;min-width:160px;box-shadow:0 4px 16px rgba(0,0,0,.15);">
+            <a class="dropdown-item" href="/api/patients/download/excel" style="display:block;padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);text-decoration:none;" onmouseenter="this.style.background='var(--hover)'" onmouseleave="this.style.background=''">📊 Download Excel</a>
+            <a class="dropdown-item" href="/api/patients/download/pdf" style="display:block;padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);text-decoration:none;" onmouseenter="this.style.background='var(--hover)'" onmouseleave="this.style.background=''">📄 Download PDF</a>
+          </div>
+        </div>
+        <div class="dropdown" style="position:relative;">
+          <button class="btn btn-outline" onclick="toggleDropdown('patients-ul-menu','import_export')">⬆ Upload ▾</button>
+          <div id="patients-ul-menu" class="dropdown-menu" style="display:none;position:absolute;right:0;top:110%;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:200;min-width:190px;box-shadow:0 4px 16px rgba(0,0,0,.15);">
+            <div class="dropdown-item" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);" onmouseenter="this.style.background='var(--hover)'" onmouseleave="this.style.background=''" onclick="triggerFileUpload('patients-excel-input')">📊 Import from Excel</div>
+            <div class="dropdown-item" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);" onmouseenter="this.style.background='var(--hover)'" onmouseleave="this.style.background=''" onclick="triggerFileUpload('patients-pdf-input')">📄 Import from PDF</div>
+            <div class="dropdown-item" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);" onmouseenter="this.style.background='var(--hover)'" onmouseleave="this.style.background=''" onclick="triggerFileUpload('patients-db-input')">🗄 Restore from .db</div>
+          </div>
+        </div>
+        <input type="file" id="patients-excel-input" accept=".xlsx" style="display:none" onchange="uploadPatientsFile(this,'excel')"/>
+        <input type="file" id="patients-pdf-input"   accept=".pdf"  style="display:none" onchange="uploadPatientsFile(this,'pdf')"/>
+        <input type="file" id="patients-db-input" accept=".db" style="display:none" onchange="uploadPatientsFile(this,'db')"/>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table" id="patients-table">
+        <thead><tr>
+          <th>Name</th><th>Age</th><th>Gender</th><th>Blood</th><th>Phone</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="patients-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+ 
+  <div class="page" id="page-doctors">
+    <div class="page-toolbar">
+      <div style="font-size:13px;color:var(--muted)">Manage referring doctors &amp; specialists</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="add-doctor-btn" onclick="openModal('doctor-modal')">+ Add Doctor</button>
+        <div class="dropdown" style="position:relative;">
+          <button class="btn btn-outline" onclick="toggleDropdown('doctors-dl-menu','import_export')">⬇ Download ▾</button>
+          <div id="doctors-dl-menu" class="dropdown-menu" style="display:none;position:absolute;right:0;top:110%;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:200;min-width:160px;box-shadow:0 4px 16px rgba(0,0,0,.15);">
+            <a class="dropdown-item" href="/api/doctors/download/excel" style="display:block;padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);text-decoration:none;" onmouseenter="this.style.background='var(--hover)'" onmouseleave="this.style.background=''">📊 Download Excel</a>
+            <a class="dropdown-item" href="/api/doctors/download/pdf" style="display:block;padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);text-decoration:none;" onmouseenter="this.style.background='var(--hover)'" onmouseleave="this.style.background=''">📄 Download PDF</a>
+          </div>
+        </div>
+        <div class="dropdown" style="position:relative;">
+          <button class="btn btn-outline" onclick="toggleDropdown('doctors-ul-menu','import_export')">⬆ Upload ▾</button>
+          <div id="doctors-ul-menu" class="dropdown-menu" style="display:none;position:absolute;right:0;top:110%;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:200;min-width:190px;box-shadow:0 4px 16px rgba(0,0,0,.15);">
+            <div class="dropdown-item" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);" onmouseenter="this.style.background='var(--hover)'" onmouseleave="this.style.background=''" onclick="triggerFileUpload('doctors-excel-input')">📊 Import from Excel</div>
+            <div class="dropdown-item" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);" onmouseenter="this.style.background='var(--hover)'" onmouseleave="this.style.background=''" onclick="triggerFileUpload('doctors-pdf-input')">📄 Import from PDF</div>
+            <div class="dropdown-item" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);" onmouseenter="this.style.background='var(--hover)'" onmouseleave="this.style.background=''" onclick="triggerFileUpload('doctors-db-input')">🗄 Restore from .db</div>
+          </div>
+        </div>
+        <input type="file" id="doctors-excel-input" accept=".xlsx" style="display:none" onchange="uploadDoctorsFile(this,'excel')"/>
+        <input type="file" id="doctors-pdf-input"   accept=".pdf"  style="display:none" onchange="uploadDoctorsFile(this,'pdf')"/>
+        <input type="file" id="doctors-db-input" accept=".db" style="display:none" onchange="uploadDoctorsFile(this,'db')"/>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table" id="doctors-table">
+        <thead><tr>
+          <th>Name</th><th>Specialization</th><th>Hospital</th><th>Phone</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="doctors-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+ 
+  <div class="page" id="page-reports">
+    <div class="page-toolbar">
+      <input type="search" class="search-input" id="report-search" placeholder="Search reports..."/>
+      
+      <div style="display:flex;gap:12px;align-items:center;margin-left:8px;padding:4px 12px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid var(--border);">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Filter by Date</label>
+          <input type="date" id="report-filter-date" class="form-input" style="padding:3px 8px;font-size:12px;width:140px;height:30px;background:var(--bg)" onchange="loadReports()"/>
+        </div>
+        <button class="btn-icon" style="padding:4px;" title="Clear Filter" onclick="clearReportDateFilter()">✕</button>
+      </div>
+ 
+      <div style="display:flex;gap:8px;margin-left:auto;align-items:center;">
+        <button class="btn btn-danger" id="bulk-delete-btn" onclick="bulkDeleteReports()" style="display:none;">🗑️ Delete Selected (<span id="selected-count">0</span>)</button>
+        <button class="btn btn-outline" id="new-test-report-btn" onclick="openNewTestReport()">🧪 New Test Report</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th style="width:36px"><input type="checkbox" id="select-all-reports" title="Select All" onchange="toggleSelectAllReports(this)" style="width:15px;height:15px;cursor:pointer;accent-color:var(--primary)"></th>
+          <th>ID</th><th>Patient</th><th>Title</th><th>Doctor</th><th>Date</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="reports-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+ 
+  <div class="page" id="page-labtest">
+    <div class="bill-wrap">
+ 
+      <div class="bill-section">
+        <div class="bill-section-title">🔍 Search Patient Info</div>
+        <div class="bill-search-row">
+          <div style="position:relative;flex:1">
+            <input type="text" id="bill-patient-search" class="form-input" placeholder="Search by name, phone or ref no..."
+              autocomplete="off"
+              oninput="filterBillPatients(this.value)"
+              onkeydown="billPatientKeyNav(event)"
+              onfocus="filterBillPatients(this.value)"/>
+            <div id="bill-patient-results"
+              style="display:none;position:absolute;top:100%;left:0;right:0;z-index:999;
+                     background:var(--surface);border:1px solid var(--border);border-radius:8px;
+                     box-shadow:0 8px 24px rgba(0,0,0,0.4);max-height:260px;overflow-y:auto;margin-top:4px">
+            </div>
+          </div>
+          <select id="bill-patient-select" class="form-input" style="display:none"></select>
+          <button class="btn btn-primary" onclick="searchBillPatient()">Search</button>
+          <button class="btn btn-outline" onclick="showPage('patients');setTimeout(()=>document.getElementById('add-patient-btn').click(),200)">+ New Patient</button>
+        </div>
+        <div id="bill-patient-card" class="bill-patient-card" style="display:none">
+          <div class="bpc-grid">
+            <div class="bpc-field"><span class="bpc-label">Patient Name</span><span class="bpc-val" id="bpc-name">—</span></div>
+            <div class="bpc-field"><span class="bpc-label">Age</span><span class="bpc-val" id="bpc-age">—</span></div>
+            <div class="bpc-field"><span class="bpc-label">Gender</span><span class="bpc-val" id="bpc-gender">—</span></div>
+            <div class="bpc-field"><span class="bpc-label">Mobile No</span><span class="bpc-val" id="bpc-phone">—</span></div>
+            <div class="bpc-field"><span class="bpc-label">Ref. No</span><span class="bpc-val" id="bpc-refno">—</span></div>
+            <div class="bpc-field">
+              <span class="bpc-label">Date *</span>
+              <input type="date" id="bill-date" class="form-input" style="padding:4px 8px;font-size:13px" onchange="loadReportTestsForBill()"/>
+            </div>
+            <div class="bpc-field" style="grid-column:span 2">
+              <span class="bpc-label">Doctor *</span>
+              <select id="bill-doctor" class="form-input" style="font-size:13px"></select>
+            </div>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="bill-section" id="bill-report-tests-section" style="display:none">
+        <div class="bill-section-title" style="display:flex;justify-content:space-between;align-items:center">
+          <span>🧾 Tests From Reports On This Date</span>
+          <button class="btn btn-outline" style="font-size:12px" onclick="addAllReportTestsToBill()">+ Add All</button>
+        </div>
+        <div id="bill-report-tests-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+ 
+      <div class="bill-section" id="bill-test-section" style="display:none">
+        <div class="bill-section-title">🧪 Test Entry</div>
+ 
+        <div style="position:relative;margin-bottom:12px">
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">⚡ Quick Search — type to find any sub-test directly</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="position:relative;flex:1">
+              <input type="text" id="te-quick-search" class="form-input" placeholder="e.g. Haemoglobin, TSH, Creatinine..."
+                autocomplete="off"
+                oninput="quickSearchTests(this.value)"
+                onkeydown="quickSearchKeyNav(event)"/>
+              <div id="te-quick-results"
+                style="display:none;position:absolute;top:100%;left:0;right:0;z-index:999;
+                       background:var(--surface);border:1px solid var(--border);border-radius:8px;
+                       box-shadow:0 8px 24px rgba(0,0,0,0.4);max-height:260px;overflow-y:auto;margin-top:4px">
+              </div>
+            </div>
+            <button class="btn btn-outline" style="white-space:nowrap;font-size:12px" onclick="clearQuickSearch()">✕ Clear</button>
+          </div>
+        </div>
+ 
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-size:11px;color:var(--muted)">or select manually</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+ 
+        <div class="test-entry-row">
+          <div class="form-group" style="flex:2">
+            <label>Category *</label>
+            <select id="te-stage1" class="form-input" onchange="loadBillStage2()">
+              <option value="">Select Test</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:2">
+            <label>Subcategory</label>
+            <select id="te-stage2" class="form-input" onchange="loadBillStage3()">
+              <option value="">—</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:2">
+            <label>Test Name</label>
+            <select id="te-stage3" class="form-input" onchange="autoFillRate()">
+              <option value="">—</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Rate (₹)</label>
+            <input type="number" id="te-rate" class="form-input" placeholder="0.00" min="0" step="0.01"/>
+          </div>
+          <div class="form-group" style="flex:none;align-self:flex-end">
+            <button class="btn btn-primary" onclick="addBillItem()">Add</button>
+          </div>
+        </div>
+        <div id="bill-catalog-info" style="display:none;margin:-4px 0 10px 0;padding:7px 12px;border-radius:6px;background:var(--surface2,#1e293b);border:1px solid var(--border);font-size:12px;color:var(--text);gap:16px;flex-wrap:wrap;align-items:center">
+          <span id="bci-unit"   style="color:var(--muted)"></span>
+          <span id="bci-ref"    style="color:var(--muted)"></span>
+          <span id="bci-amount" style="color:#16a34a;font-weight:600"></span>
+        </div>
+ 
+        <div class="table-wrap" style="margin-top:10px">
+          <table class="data-table" id="bill-items-table">
+            <thead><tr>
+              <th style="width:50px">Sl.No</th>
+              <th>Test Name</th>
+              <th style="width:120px">Category</th>
+              <th style="width:120px">Subcategory</th>
+              <th style="width:120px">Test Name</th>
+              <th style="width:100px;text-align:right">Rate (₹)</th>
+              <th style="width:60px">Action</th>
+            </tr></thead>
+            <tbody id="bill-items-tbody">
+              <tr id="bill-empty-row"><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No tests added yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+ 
+      <div class="bill-section bill-footer-section" id="bill-footer-section" style="display:none">
+        <div class="bill-footer-grid">
+          <div class="form-group">
+            <label>Bill Type</label>
+            <select id="bill-type" class="form-input">
+              <option value="Cash">Cash</option>
+              <option value="Cheque">Cheque</option>
+              <option value="Online">Online Transfer</option>
+              <option value="Card">Card</option>
+              <option value="Credit">Credit</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Cheque No / Ref No</label>
+            <input type="text" id="bill-cheque" class="form-input" placeholder="—"/>
+          </div>
+          <div class="form-group">
+            <label>Total Amount (₹)</label>
+            <input type="number" id="bill-total" class="form-input bill-total-input" readonly/>
+          </div>
+        </div>
+        <div class="bill-actions">
+          <button class="btn btn-primary" id="btn-print-bill" onclick="printBill()">🖨️ Print Bill</button>
+          <button class="btn btn-outline" onclick="resetBillForm()">↺ New Bill</button>
+        </div>
+      </div>
+ 
+      <div class="bill-section">
+        <div class="bill-section-title" style="display:flex;justify-content:space-between;align-items:center">
+          <span>📋 Saved Bills</span>
+          <button class="btn btn-sm btn-outline" onclick="loadSavedBills()">↻ Refresh</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px">
+          <div class="form-group" style="margin:0">
+            <label style="font-size:11px">From</label>
+            <input type="date" id="collections-from" class="form-input" style="padding:4px 8px;font-size:13px" onchange="applySavedBillsFilters()"/>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label style="font-size:11px">To</label>
+            <input type="date" id="collections-to" class="form-input" style="padding:4px 8px;font-size:13px" onchange="applySavedBillsFilters()"/>
+          </div>
+          <button class="btn btn-outline" style="font-size:12px" onclick="setSavedBillsToday()">Today</button>
+          <button class="btn btn-outline" style="font-size:12px" onclick="clearSavedBillsFilter()">Show All</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+          <input type="search" class="search-input" id="saved-bills-search" placeholder="Search by patient name or phone (useful when names match)..." oninput="applySavedBillsFilters()" style="max-width:340px"/>
+          <button class="btn btn-danger" id="bulk-delete-bills-btn" onclick="bulkDeleteSavedBills()" style="display:none;margin-left:auto">🗑️ Delete Selected (<span id="selected-bills-count">0</span>)</button>
+        </div>
+        <div id="collections-summary" style="display:none;margin-bottom:14px;padding:12px 16px;border-radius:8px;background:var(--surface2,#1e293b);border:1px solid var(--border);display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Total Collected</div>
+            <div id="collections-total" style="font-size:22px;font-weight:700;color:#16a34a">₹0.00</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Bills</div>
+            <div id="collections-count" style="font-size:22px;font-weight:700;color:var(--text)">0</div>
+          </div>
+          <div id="collections-by-type" style="display:flex;gap:14px;flex-wrap:wrap;margin-left:auto"></div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th style="width:36px"><input type="checkbox" id="select-all-bills" title="Select All" onchange="toggleSelectAllBills(this)" style="width:15px;height:15px;cursor:pointer;accent-color:var(--primary)"></th>
+              <th>Bill ID</th><th>Patient</th><th>Doctor</th><th>Date</th><th>Tests</th><th style="text-align:right">Amount</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="saved-bills-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+ 
+  <div class="page" id="page-collections">
+    <div class="page-toolbar">
+      <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="margin:0">
+          <label style="font-size:11px">From</label>
+          <input type="date" id="coll-from" class="form-input" style="padding:4px 8px;font-size:13px" onchange="loadCollectionsReport()"/>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label style="font-size:11px">To</label>
+          <input type="date" id="coll-to" class="form-input" style="padding:4px 8px;font-size:13px" onchange="loadCollectionsReport()"/>
+        </div>
+        <button class="btn btn-outline" style="font-size:12px" onclick="setCollReportRange('today')">Today</button>
+        <button class="btn btn-outline" style="font-size:12px" onclick="setCollReportRange('yesterday')">Yesterday</button>
+        <button class="btn btn-outline" style="font-size:12px" onclick="setCollReportRange('week')">This Week</button>
+        <button class="btn btn-outline" style="font-size:12px" onclick="setCollReportRange('month')">This Month</button>
+        <button class="btn btn-outline" style="font-size:12px" onclick="setCollReportRange('all')">All Time</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" style="font-size:12px;color:#16a34a;border-color:#16a34a" onclick="exportCollectionsReport('excel')">⬇ Excel</button>
+        <button class="btn btn-outline" style="font-size:12px;color:#dc2626;border-color:#dc2626" onclick="exportCollectionsReport('pdf')">⬇ PDF</button>
+      </div>
+    </div>
+
+    <div id="coll-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px">
+      <div style="padding:16px 18px;border-radius:10px;background:var(--surface2,#1e293b);border:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Total Collected</div>
+        <div id="coll-total" style="font-size:26px;font-weight:700;color:#16a34a;margin-top:4px">₹0.00</div>
+      </div>
+      <div style="padding:16px 18px;border-radius:10px;background:var(--surface2,#1e293b);border:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Bills</div>
+        <div id="coll-count" style="font-size:26px;font-weight:700;color:var(--text);margin-top:4px">0</div>
+      </div>
+      <div style="padding:16px 18px;border-radius:10px;background:var(--surface2,#1e293b);border:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Average Bill Value</div>
+        <div id="coll-avg" style="font-size:26px;font-weight:700;color:var(--text);margin-top:4px">₹0.00</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px" id="coll-breakdown-grid">
+      <div class="bill-section">
+        <div class="bill-section-title">💳 By Payment Type</div>
+        <div id="coll-by-type" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+      <div class="bill-section">
+        <div class="bill-section-title">👨‍⚕️ By Doctor</div>
+        <div id="coll-by-doctor" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+
+    <div class="bill-section">
+      <div class="bill-section-title">📅 Day-Wise Collections</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>Date</th><th>Bills</th><th style="text-align:right">Amount Collected</th>
+          </tr></thead>
+          <tbody id="coll-by-day-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="page" id="page-interpretations">
+    <div class="page-toolbar">
+      <input type="search" class="search-input" id="interp-search" placeholder="Search test interpretations..." oninput="filterInterpretations(this.value)"/>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="font-size:12px" onclick="openAddInterp()">＋ Add</button>
+        <button class="btn btn-outline" style="font-size:12px;color:#16a34a;border-color:#16a34a" onclick="exportPage('interpretations','excel')">⬇ Excel</button>
+        <button class="btn btn-outline" style="font-size:12px;color:#dc2626;border-color:#dc2626" onclick="exportPage('interpretations','pdf')">⬇ PDF</button>
+      </div>
+    </div>
+    <div id="interp-list" style="padding:0 4px"></div>
+  </div>
+ 
+  <div class="page" id="page-reftables">
+    <div class="page-toolbar">
+      <input type="search" class="search-input" id="reftable-search" placeholder="Search reference tables..." oninput="filterRefTables(this.value)"/>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="font-size:12px" onclick="openAddRefTable()">＋ Add</button>
+      </div>
+    </div>
+    <div id="reftable-list" style="padding:0 4px"></div>
+  </div>
+ 
+  <div class="page" id="page-calculations">
+    <div class="page-toolbar">
+      <input type="search" class="search-input" id="calc-search" placeholder="Search calculations..." oninput="filterCalcRules(this.value)"/>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="font-size:12px" onclick="openAddCalcRule()">＋ Add Calculation</button>
+      </div>
+    </div>
+    <div style="padding:0 4px 4px;color:var(--muted);font-size:12px">
+      Built-in calculations (always on) are listed first, followed by any custom ones you've added.
+    </div>
+    <div id="calc-rules-list" style="padding:0 4px"></div>
+  </div>
+ 
+  <div class="page" id="page-appointments">
+    <div class="page-toolbar">
+      <input type="search" class="search-input" id="appt-search" placeholder="Search appointments..."/>
+      <button class="btn btn-primary" id="add-appt-btn" onclick="openApptModal()">+ Book Appointment</button>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Tests</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="appts-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+ 
+  <div class="page" id="page-tests">
+    <div class="page-toolbar">
+      <div class="tab-group" id="test-cat-tabs"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="test-catalog-search" class="form-input" placeholder="🔍 Search tests..." style="width:200px;max-width:100%;flex:1 1 160px;font-size:13px" oninput="filterTestCatalog(this.value)"/>
+        <button class="btn btn-outline" style="font-size:12px;color:#16a34a;border-color:#16a34a" onclick="exportPage('catalog','excel')">⬇ Excel</button>
+        <button class="btn btn-outline" style="font-size:12px;color:#dc2626;border-color:#dc2626" onclick="exportPage('catalog','pdf')">⬇ PDF</button>
+        <button class="btn btn-primary" onclick="openAddTestModal()">+ Add Test</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>Category</th><th>Subcategory</th><th>Test Name</th><th>Unit</th><th>Normal Range</th><th>Amount (₹)</th><th>Description</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="tests-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+ 
+  <div class="page" id="page-stages">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px">
+      <button class="btn btn-outline" style="font-size:12px;color:#16a34a;border-color:#16a34a" onclick="exportPage('stages','excel')">⬇ Excel</button>
+      <button class="btn btn-outline" style="font-size:12px;color:#dc2626;border-color:#dc2626" onclick="exportPage('stages','pdf')">⬇ PDF</button>
+    </div>
+    <div class="stages-layout">
+ 
+      <div class="stage-col">
+        <div class="stage-col-header" style="--scol:#3b82f6">
+          <div class="stage-col-title">🧫 Category</div>
+          <button class="btn btn-sm btn-primary" onclick="openAddStage(1)">+ Add</button>
+        </div>
+        <div class="stage-list" id="stage1-list"></div>
+      </div>
+ 
+      <div class="stage-col">
+        <div class="stage-col-header" style="--scol:#8b5cf6">
+          <div class="stage-col-title">🔬 Subcategory</div>
+          <button class="btn btn-sm btn-primary" id="btn-add-s2" onclick="openAddStage(2)" disabled>+ Add</button>
+        </div>
+        <div class="stage-hint" id="stage2-hint">← Select a Category</div>
+        <div class="stage-list" id="stage2-list"></div>
+      </div>
+ 
+      <div class="stage-col">
+        <div class="stage-col-header" style="--scol:#10b981">
+          <div class="stage-col-title">🧬 Test Name</div>
+          <button class="btn btn-sm btn-primary" id="btn-add-s3" onclick="openAddStage(3)">+ Add</button>
+        </div>
+        <div class="stage-hint" id="stage3-hint">← Select a Subcategory</div>
+        <div class="stage-list" id="stage3-list"></div>
+      </div>
+ 
+    </div>
+  </div>
+ 
+  <div class="page" id="page-otherlabtests">
+    <div style="display:flex;gap:14px;height:100%;overflow:hidden">
+ 
+      <div style="width:240px;flex-shrink:0;display:flex;flex-direction:column;gap:10px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;flex:1;overflow:hidden">
+          <div style="font-size:13px;font-weight:700;color:var(--primary);letter-spacing:.3px">🏥 Other Labs</div>
+          <div style="display:flex;gap:6px">
+            <input type="text" id="new-lab-name" class="form-input" style="flex:1;height:32px;font-size:12px" placeholder="Lab name…"/>
+            <button class="btn btn-sm btn-primary" onclick="addOtherLab()" style="padding:0 10px;height:32px">+</button>
+          </div>
+          <div id="other-labs-list" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:4px">
+            <div style="color:var(--muted);font-size:12px;text-align:center;padding:20px 0">No labs added yet</div>
+          </div>
+        </div>
+      </div>
+ 
+      <div style="flex:1;display:flex;flex-direction:column;gap:12px;overflow:hidden;min-width:0">
+ 
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="font-size:15px;font-weight:700;color:var(--text)" id="olr-lab-title">← Select a lab to manage its tests</div>
+          <div style="margin-left:auto;display:flex;gap:8px" id="olr-actions" style="display:none!important">
+            <input type="text" id="olr-search" class="form-input" style="width:180px;height:32px;font-size:12px" placeholder="🔍 Search tests…" oninput="filterOlrTests()"/>
+            <button class="btn btn-primary" style="height:32px;font-size:13px" onclick="openOlrForm()">+ Add Test</button>
+          </div>
+        </div>
+ 
+        <div id="olr-form-wrap" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0;max-height:70vh;overflow-y:auto;scroll-behavior:smooth">
+          <div style="position:sticky;top:0;z-index:2;background:var(--surface);padding:14px 18px 10px;border-bottom:1px solid var(--border);border-radius:10px 10px 0 0"><div style="font-size:13px;font-weight:700;color:var(--primary)" id="olr-form-title">Add Test Range</div></div>
+          <div style="padding:14px 18px">
+          <input type="hidden" id="olr-edit-id"/>
+ 
+          <div class="form-row">
+            <div class="form-group">
+              <label>Test Name *</label>
+              <input type="text" id="olr-name" class="form-input" placeholder="e.g. Haemoglobin"/>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <input type="text" id="olr-category" class="form-input" placeholder="e.g. HAEMATOLOGY"/>
+            </div>
+            <div class="form-group">
+              <label>Unit</label>
+              <input type="text" id="olr-unit" class="form-input" placeholder="e.g. g/dL"/>
+            </div>
+            <div class="form-group">
+              <label>Amount (₹)</label>
+              <input type="number" id="olr-amount" class="form-input" placeholder="0" min="0"/>
+            </div>
+          </div>
+ 
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:8px 0 6px">Reference Ranges</div>
+          <div class="form-row">
+            <div class="form-group"><label>♂ Male Min</label><input type="number" id="olr-min-m" class="form-input" placeholder="—" step="0.01"/></div>
+            <div class="form-group"><label>♂ Male Max</label><input type="number" id="olr-max-m" class="form-input" placeholder="—" step="0.01"/></div>
+            <div class="form-group"><label>♂ Male Range Text</label><input type="text" id="olr-text-m" class="form-input" placeholder="e.g. 13 – 17"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>♀ Female Min</label><input type="number" id="olr-min-f" class="form-input" placeholder="—" step="0.01"/></div>
+            <div class="form-group"><label>♀ Female Max</label><input type="number" id="olr-max-f" class="form-input" placeholder="—" step="0.01"/></div>
+            <div class="form-group"><label>♀ Female Range Text</label><input type="text" id="olr-text-f" class="form-input" placeholder="e.g. 12 – 14.5"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>🧒 Child Min</label><input type="number" id="olr-min-c" class="form-input" placeholder="—" step="0.01"/></div>
+            <div class="form-group"><label>🧒 Child Max</label><input type="number" id="olr-max-c" class="form-input" placeholder="—" step="0.01"/></div>
+            <div class="form-group"><label>🧒 Child Range Text</label><input type="text" id="olr-text-c" class="form-input" placeholder="e.g. 4 – 12"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2">
+              <label>Description</label>
+              <input type="text" id="olr-desc" class="form-input" placeholder="Brief description…"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Interpretation / Clinical Notes</label>
+            <textarea id="olr-interpretation" class="form-input" rows="2" style="resize:vertical" placeholder="Clinical significance, abnormal value notes…"></textarea>
+          </div>
+          </div><!-- end scrollable body -->
+          <div style="position:sticky;bottom:0;z-index:2;background:var(--surface);padding:12px 18px;border-top:1px solid var(--border);border-radius:0 0 10px 10px;display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="saveOlrTest()">💾 Save</button>
+            <button class="btn btn-outline" onclick="closeOlrForm()">Cancel</button>
+          </div>
+        </div>
+ 
+        <div class="table-wrap" style="flex:1;overflow-y:auto">
+          <table class="data-table">
+            <thead><tr>
+              <th>Test Name</th><th>Category</th><th>Unit</th>
+              <th>♂ Male</th><th>♀ Female</th><th>🧒 Child</th>
+              <th>₹</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="olr-tbody">
+              <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:40px">← Select a lab from the left panel</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="olr-count" style="font-size:12px;color:var(--muted);text-align:right"></div>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="page" id="page-settings">
+ 
+    <div style="display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:0">
+      <button class="settings-tab active" id="stab-lab" onclick="switchSettingsTab('lab')">🏥 Lab Info</button>
+      <button class="settings-tab" id="stab-design" onclick="switchSettingsTab('design')">🎨 Form Designer</button>
+      <button class="settings-tab" id="stab-links" onclick="switchSettingsTab('links')">🔗 Linked Subcategories</button>
+    </div>
+ 
+    <div id="stab-content-lab">
+      <div class="settings-grid">
+        <div class="settings-section">
+          <div class="settings-title">Lab Information</div>
+          <div class="form-group">
+            <label>Lab Name</label>
+            <input type="text" id="s-lab-name" class="form-input" placeholder="My Diagnostic Lab" oninput="fdSyncLabInfo()"/>
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" id="s-lab-addr" class="form-input" placeholder="123 Health St, City" oninput="fdSyncLabInfo()"/>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="text" id="s-lab-phone" class="form-input" placeholder="+91-9999999999" oninput="fdSyncLabInfo()"/>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="s-lab-email" class="form-input" placeholder="lab@example.com" oninput="fdSyncLabInfo()"/>
+            </div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Lab Logo</div>
+          <div class="form-group">
+            <label>Upload Logo</label>
+            <input type="file" id="s-logo" accept="image/*" class="form-input" style="padding:6px" onchange="fdLogoPreview(this)"/>
+            <button class="btn btn-outline mt-8" onclick="uploadLogo()">Upload Logo</button>
+          </div>
+          <div id="s-logo-preview" style="margin-top:10px"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSettings()">💾 Save Lab Info</button>
+    </div>
+ 
+    <div id="stab-content-design" style="display:none">
+      <div style="display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start">
+ 
+        <div style="display:flex;flex-direction:column;gap:12px">
+ 
+          <div class="settings-section">
+            <div class="settings-title">🎨 Colors</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="form-group">
+                <label style="font-size:11px">Primary Color</label>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <input type="color" id="fd-primary" value="#c0392b" oninput="fdUpdate()" style="width:40px;height:32px;border:none;padding:1px;border-radius:4px;cursor:pointer;background:transparent"/>
+                  <input type="text" id="fd-primary-hex" value="#c0392b" oninput="fdHexSync('primary')" class="form-input" style="flex:1;font-size:12px;padding:5px 8px;font-family:monospace"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Secondary Color</label>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <input type="color" id="fd-secondary" value="#1a5276" oninput="fdUpdate()" style="width:40px;height:32px;border:none;padding:1px;border-radius:4px;cursor:pointer;background:transparent"/>
+                  <input type="text" id="fd-secondary-hex" value="#1a5276" oninput="fdHexSync('secondary')" class="form-input" style="flex:1;font-size:12px;padding:5px 8px;font-family:monospace"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Header Text Color</label>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <input type="color" id="fd-header-text" value="#ffffff" oninput="fdUpdate()" style="width:40px;height:32px;border:none;padding:1px;border-radius:4px;cursor:pointer;background:transparent"/>
+                  <input type="text" id="fd-header-text-hex" value="#ffffff" oninput="fdHexSync('header-text')" class="form-input" style="flex:1;font-size:12px;padding:5px 8px;font-family:monospace"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Table Header Color</label>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <input type="color" id="fd-table-head" value="#1a5276" oninput="fdUpdate()" style="width:40px;height:32px;border:none;padding:1px;border-radius:4px;cursor:pointer;background:transparent"/>
+                  <input type="text" id="fd-table-head-hex" value="#1a5276" oninput="fdHexSync('table-head')" class="form-input" style="flex:1;font-size:12px;padding:5px 8px;font-family:monospace"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">High Value Color</label>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <input type="color" id="fd-high-color" value="#c0392b" oninput="fdUpdate()" style="width:40px;height:32px;border:none;padding:1px;border-radius:4px;cursor:pointer;background:transparent"/>
+                  <input type="text" id="fd-high-color-hex" value="#c0392b" oninput="fdHexSync('high-color')" class="form-input" style="flex:1;font-size:12px;padding:5px 8px;font-family:monospace"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Low Value Color</label>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <input type="color" id="fd-low-color" value="#1a5276" oninput="fdUpdate()" style="width:40px;height:32px;border:none;padding:1px;border-radius:4px;cursor:pointer;background:transparent"/>
+                  <input type="text" id="fd-low-color-hex" value="#1a5276" oninput="fdHexSync('low-color')" class="form-input" style="flex:1;font-size:12px;padding:5px 8px;font-family:monospace"/>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:8px">
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">Quick Presets</label>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <button class="fd-preset" onclick="fdApplyPreset('classic')"    style="background:#c0392b">Classic Red</button>
+                <button class="fd-preset" onclick="fdApplyPreset('navy')"       style="background:#1a4a7a">Navy Blue</button>
+                <button class="fd-preset" onclick="fdApplyPreset('teal')"       style="background:#0d9488">Teal Green</button>
+                <button class="fd-preset" onclick="fdApplyPreset('purple')"     style="background:#7c3aed">Royal Purple</button>
+                <button class="fd-preset" onclick="fdApplyPreset('forest')"     style="background:#065f46">Forest Green</button>
+                <button class="fd-preset" onclick="fdApplyPreset('slate')"      style="background:#334155">Slate Grey</button>
+                <button class="fd-preset" onclick="fdApplyPreset('maroon')"     style="background:#881337">Deep Maroon</button>
+                <button class="fd-preset" onclick="fdApplyPreset('orange')"     style="background:#c2410c">Burnt Orange</button>
+              </div>
+            </div>
+          </div>
+ 
+          <div class="settings-section">
+            <div class="settings-title">🔤 Typography</div>
+            <div class="form-group">
+              <label style="font-size:11px">Font Family</label>
+              <select id="fd-font" class="form-input" onchange="fdUpdate()" style="font-size:12px">
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+                <option value="Georgia, serif">Georgia</option>
+                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                <option value="Verdana, sans-serif">Verdana</option>
+                <option value="Tahoma, sans-serif">Tahoma</option>
+                <option value="'Courier New', monospace">Courier New</option>
+              </select>
+            </div>
+            <div class="form-row" style="gap:8px">
+              <div class="form-group">
+                <label style="font-size:11px">Base Font Size</label>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                  <button onclick="fdStepFont('base',-1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+                  <span id="fd-fontsize-display" style="min-width:52px;text-align:center;font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 0">13px</span>
+                  <button onclick="fdStepFont('base',+1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+                  <input type="hidden" id="fd-fontsize" value="13px"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Lab Name Size</label>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                  <button onclick="fdStepFont('lab',-2)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+                  <span id="fd-labname-display" style="min-width:52px;text-align:center;font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 0">30px</span>
+                  <button onclick="fdStepFont('lab',+2)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+                  <input type="hidden" id="fd-labname-size" value="30px"/>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-row" style="gap:8px;margin-top:10px">
+              <div class="form-group">
+                <label style="font-size:11px">Report Title Bar</label>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                  <button onclick="fdStepFont('title',-1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+                  <span id="fd-title-display" style="min-width:52px;text-align:center;font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 0">15px</span>
+                  <button onclick="fdStepFont('title',+1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+                  <input type="hidden" id="fd-title-size" value="15px"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Patient Details</label>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                  <button onclick="fdStepFont('patient',-1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+                  <span id="fd-patient-display" style="min-width:52px;text-align:center;font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 0">12px</span>
+                  <button onclick="fdStepFont('patient',+1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+                  <input type="hidden" id="fd-patient-size" value="12px"/>
+                </div>
+              </div>
+            </div>
+ 
+            <div class="form-row" style="gap:8px;margin-top:10px">
+              <div class="form-group">
+                <label style="font-size:11px">Table Headers</label>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                  <button onclick="fdStepFont('theader',-1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+                  <span id="fd-theader-display" style="min-width:52px;text-align:center;font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 0">13px</span>
+                  <button onclick="fdStepFont('theader',+1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+                  <input type="hidden" id="fd-theader-size" value="13px"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Table Content</label>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                  <button onclick="fdStepFont('tbody',-1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+                  <span id="fd-tbody-display" style="min-width:52px;text-align:center;font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 0">13px</span>
+                  <button onclick="fdStepFont('tbody',+1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+                  <input type="hidden" id="fd-tbody-size" value="13px"/>
+                </div>
+              </div>
+            </div>
+ 
+            <div class="form-row" style="gap:8px;margin-top:10px">
+              <div class="form-group">
+                <label style="font-size:11px">Footer &amp; Signatures</label>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                  <button onclick="fdStepFont('footer',-1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+                  <span id="fd-footer-display" style="min-width:52px;text-align:center;font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 0">11px</span>
+                  <button onclick="fdStepFont('footer',+1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+                  <input type="hidden" id="fd-footer-size" value="11px"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Notes &amp; Interpretations</label>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                  <button onclick="fdStepFont('notes',-1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+                  <span id="fd-notes-display" style="min-width:52px;text-align:center;font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 0">12px</span>
+                  <button onclick="fdStepFont('notes',+1)" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+                  <input type="hidden" id="fd-notes-size" value="12px"/>
+                </div>
+              </div>
+            </div>
+          </div>
+ 
+          <div class="settings-section">
+            <div class="settings-title">📐 Layout</div>
+            <div class="form-group">
+              <label style="font-size:11px">Header Style</label>
+              <select id="fd-header-style" class="form-input" onchange="fdUpdate()" style="font-size:12px">
+                <option value="classic">Classic — Name left, contact right</option>
+                <option value="centered">Centered — All centered</option>
+                <option value="logo-left">Logo Left — Logo + name</option>
+                <option value="banner">Banner — Full-width color bar</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label style="font-size:11px">Tagline</label>
+              <input type="text" id="fd-tagline" class="form-input" placeholder="YOUR GOOD HEALTH IS OUR CONCERN" oninput="fdUpdate()" style="font-size:12px"/>
+            </div>
+            <div class="form-group">
+              <label style="font-size:11px">Report Title Text</label>
+              <input type="text" id="fd-report-title" class="form-input" value="TEST REPORT" oninput="fdUpdate()" style="font-size:12px"/>
+            </div>
+            <div class="form-group">
+              <label style="font-size:11px">Footer Text</label>
+              <input type="text" id="fd-footer-text" class="form-input" value="HOME COLLECTION AVAILABLE" oninput="fdUpdate()" style="font-size:12px"/>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+                <input type="checkbox" id="fd-show-logo" onchange="fdUpdate()" checked style="width:14px;height:14px"/> Show Logo
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+                <input type="checkbox" id="fd-show-tagline" onchange="fdUpdate()" checked style="width:14px;height:14px"/> Show Tagline
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+                <input type="checkbox" id="fd-show-footer-bar" onchange="fdUpdate()" checked style="width:14px;height:14px"/> Show Footer Bar
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+                <input type="checkbox" id="fd-zebra" onchange="fdUpdate()" checked style="width:14px;height:14px"/> Zebra Rows
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+                <input type="checkbox" id="fd-show-border" onchange="fdUpdate()" checked style="width:14px;height:14px"/> Table Borders
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+                <input type="checkbox" id="fd-bold-abnormal" onchange="fdUpdate()" checked style="width:14px;height:14px"/> Bold Abnormals
+              </label>
+            </div>
+          </div>
+ 
+          <div class="settings-section">
+            <div class="settings-title">📏 Header &amp; Footer</div>
+ 
+            <!-- HEADER -->
+            <div style="font-size:11px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:8px">&#8213; Header &#8213;</div>
+ 
+            <div class="form-group">
+              <label style="font-size:11px">Top Padding (extra space above content)</label>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+                <input type="range" id="fd-header-padding-top" min="0" max="200" step="2" value="0"
+                  oninput="fdHeaderPaddingDisplay();fdUpdate()" style="flex:1"/>
+                <span id="fd-header-padding-val" style="min-width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:2px 4px">0px</span>
+              </div>
+            </div>
+ 
+            <div class="form-group">
+              <label style="font-size:11px">Header Height (minimum height in px)</label>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+                <input type="range" id="fd-header-height" min="40" max="200" step="5" value="80"
+                  oninput="fdHeaderHeightDisplay();fdUpdate()" style="flex:1"/>
+                <span id="fd-header-height-val" style="min-width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:2px 4px">80px</span>
+              </div>
+            </div>
+ 
+            <div class="form-group">
+              <label style="font-size:11px">Images inside Header</label>
+              <div style="font-size:10px;color:var(--muted);margin-bottom:6px">Upload images that sit inside the header area. Set position (%) and size (px).</div>
+              <div id="fd-header-images-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
+                <div style="font-size:11px;color:var(--muted)">No images added yet.</div>
+              </div>
+              <button class="btn btn-outline" style="font-size:12px;width:100%" onclick="fdAddHeaderImage()">+ Add Header Image</button>
+            </div>
+ 
+            <!-- FOOTER -->
+            <div style="font-size:11px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:4px;margin:12px 0 8px">&#8213; Footer &#8213;</div>
+ 
+            <div class="form-group">
+              <label style="font-size:11px">Top Padding (extra space above footer bar)</label>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+                <input type="range" id="fd-footer-padding-top" min="0" max="60" step="2" value="0"
+                  oninput="fdFooterPaddingDisplay();fdUpdate()" style="flex:1"/>
+                <span id="fd-footer-padding-val" style="min-width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:2px 4px">0px</span>
+              </div>
+            </div>
+ 
+            <div class="form-group">
+              <label style="font-size:11px">Footer Height (minimum height in px)</label>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+                <input type="range" id="fd-footer-height" min="40" max="200" step="5" value="80"
+                  oninput="fdFooterHeightDisplay();fdUpdate()" style="flex:1"/>
+                <span id="fd-footer-height-val" style="min-width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:2px 4px">80px</span>
+              </div>
+            </div>
+ 
+            <div class="form-group">
+              <label style="font-size:11px">Bottom Padding (extra space below footer content)</label>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+                <input type="range" id="fd-footer-padding-bottom" min="0" max="40" step="2" value="4"
+                  oninput="fdFooterPaddingBottomDisplay();fdUpdate()" style="flex:1"/>
+                <span id="fd-footer-padding-bottom-val" style="min-width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:2px 4px">4px</span>
+              </div>
+            </div>
+ 
+            <div class="form-group">
+              <label style="font-size:11px">Images inside Footer</label>
+              <div style="font-size:10px;color:var(--muted);margin-bottom:6px">Upload images that sit inside the footer bar. Set position (%) and size (px).</div>
+              <div id="fd-footer-images-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
+                <div style="font-size:11px;color:var(--muted)">No images added yet.</div>
+              </div>
+              <button class="btn btn-outline" style="font-size:12px;width:100%" onclick="fdAddFooterImage()">+ Add Footer Image</button>
+            </div>
+ 
+          </div>
+ 
+          <div class="settings-section">
+            <div class="settings-title">👤 Patient Info Layout</div>
+            <div class="form-group">
+              <label style="font-size:11px">Layout Mode</label>
+              <select id="fd-patientinfo-layout" class="form-input" style="font-size:12px" onchange="fdPatientInfoLayoutChange(this.value)">
+                <option value="grid">Grid (default two-column layout)</option>
+                <option value="custom">Custom positions (for pre-printed letterheads)</option>
+              </select>
+              <div style="font-size:10px;color:var(--muted);margin-top:4px">If your letterhead paper already has printed labels (Name, Age, Doctor, etc.), use Custom positions to place just the values exactly where they need to fall.</div>
+            </div>
+ 
+            <div id="fd-patientinfo-custom-panel" style="display:none">
+              <div class="form-group">
+                <label style="font-size:11px">Positioning Area Height (px)</label>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+                  <input type="range" id="fd-patientinfo-height" min="60" max="400" step="5" value="140"
+                    oninput="fdPatientInfoHeightDisplay();fdUpdate()" style="flex:1"/>
+                  <span id="fd-patientinfo-height-val" style="min-width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:2px 4px">140px</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Field Positions</label>
+                <div style="font-size:10px;color:var(--muted);margin-bottom:6px">X / Y are % across the positioning area above. Uncheck a field to hide it (e.g. if it's already printed on the letterhead).</div>
+                <div id="fd-patient-fields-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+              </div>
+            </div>
+          </div>
+ 
+          <div class="settings-section">
+            <div class="settings-title">🧩 Report Elements</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
+              Drag ☰ to reorder · Click toggle to show/hide
+            </div>
+            <div id="fd-elements-list" style="display:flex;flex-direction:column;gap:6px">
+              </div>
+          </div>
+ 
+          <div class="settings-section">
+            <div class="settings-title">🖼️ Custom Images</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
+              Upload images and drag them freely on the report preview — just like Word
+            </div>
+            <div id="fd-custom-images-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+              </div>
+            <button class="btn btn-outline" style="font-size:12px;width:100%" onclick="fdAddCustomImage()">+ Add Image</button>
+            <div style="margin-top:8px;font-size:10px;color:var(--muted);line-height:1.5">
+              💡 After uploading, drag the image on the preview to position it.<br/>
+              Use the resize handle (↘) to resize. Click image to select/deselect.
+            </div>
+          </div>
+ 
+          <div class="settings-section">
+            <div class="settings-title">🖼️ Logo Placement</div>
+            <div class="form-group">
+              <label style="font-size:11px">Upload Header Logo</label>
+              <input type="file" id="fd-logo-upload" accept="image/*" class="form-input" style="padding:5px;font-size:12px" onchange="fdHandleLogoUpload(this)"/>
+              <div id="fd-logo-thumb" style="margin-top:6px"></div>
+            </div>
+            <div class="form-group">
+              <label style="font-size:11px">Logo Position on Report</label>
+              <select id="fd-logo-position" class="form-input" onchange="fdUpdate()" style="font-size:12px">
+                <option value="header">In Header (inline with lab name)</option>
+                <option value="top-left">Top Left (above header)</option>
+                <option value="top-right">Top Right (above header)</option>
+                <option value="top-center">Top Center (centered above header)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label style="font-size:11px">Logo Size (height)</label>
+              <input type="range" id="fd-logo-size" min="30" max="120" value="60" oninput="fdLogoSizeDisplay(this);fdUpdate()" style="width:100%"/>
+              <div style="font-size:11px;color:var(--muted);text-align:center" id="fd-logo-size-val">60px</div>
+            </div>
+          </div>
+ 
+          <div class="settings-section" style="border:1px dashed var(--border);background:var(--bg)">
+            <div class="settings-title" style="display:flex;justify-content:space-between;align-items:center">
+              <span>💧 Watermark</span>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer">
+                <input type="checkbox" id="fd-wm-enabled" onchange="fdToggleWatermark();fdUpdate()" style="width:14px;height:14px"/> Enable
+              </label>
+            </div>
+            <div id="fd-wm-controls" style="display:none">
+              <div class="form-group">
+                <label style="font-size:11px">Upload Watermark Image</label>
+                <input type="file" id="fd-wm-upload" accept="image/*" class="form-input" style="padding:5px;font-size:12px" onchange="fdHandleWmUpload(this)"/>
+                <div id="fd-wm-thumb" style="margin-top:6px"></div>
+                <div style="font-size:10px;color:var(--muted);margin-top:4px">💡 Leave blank to reuse header logo as watermark</div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Position</label>
+                <select id="fd-wm-position" class="form-input" onchange="fdUpdate()" style="font-size:12px">
+                  <option value="center">Center (middle of page)</option>
+                  <option value="top-left">Top Left</option>
+                  <option value="top-right">Top Right</option>
+                  <option value="bottom-left">Bottom Left</option>
+                  <option value="bottom-right">Bottom Right</option>
+                </select>
+              </div>
+              <div class="form-row" style="gap:8px">
+                <div class="form-group">
+                  <label style="font-size:11px">Size (% of page width)</label>
+                  <input type="range" id="fd-wm-size" min="10" max="80" value="50" oninput="fdWmSizeDisplay(this);fdUpdate()" style="width:100%"/>
+                  <div style="font-size:11px;color:var(--muted);text-align:center" id="fd-wm-size-val">50%</div>
+                </div>
+                <div class="form-group">
+                  <label style="font-size:11px">Opacity</label>
+                  <input type="range" id="fd-wm-opacity" min="3" max="40" value="10" oninput="fdWmOpacityDisplay(this);fdUpdate()" style="width:100%"/>
+                  <div style="font-size:11px;color:var(--muted);text-align:center" id="fd-wm-opacity-val">10%</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="font-size:11px">Rotation (degrees)</label>
+                <input type="range" id="fd-wm-rotate" min="-180" max="180" value="-30" oninput="fdWmRotateDisplay(this);fdUpdate()" style="width:100%"/>
+                <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px">
+                  <input type="number" id="fd-wm-rotate-num" min="-180" max="180" value="-30"
+                    style="width:70px;text-align:center;font-size:12px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)"
+                    oninput="fdWmRotateNumInput(this)"/>
+                  <span style="font-size:11px;color:var(--muted)">°</span>
+                </div>
+              </div>
+            </div>
+          </div>
+ 
+          <div class="settings-section">
+            <div class="settings-title">✍️ Signatures</div>
+            <div id="fd-sigs-container">
+              </div>
+            <button class="btn btn-outline" style="font-size:12px;margin-top:6px" onclick="fdAddSig()">+ Add Signatory</button>
+          </div>
+ 
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="fdSave()">💾 Save Design</button>
+            <button class="btn btn-outline" onclick="fdReset()">↺ Reset Defaults</button>
+          </div>
+        </div>
+ 
+        <div style="position:sticky;top:12px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto;padding-right:4px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:13px;font-weight:600;color:var(--primary)">Live Preview</span>
+            <span style="font-size:11px;color:var(--muted)">Drag sections on preview · Drag images freely · Resize with ↘ handle</span>
+          </div>
+          <div id="fd-canvas-wrap" style="position:relative;background:#fff;border-radius:6px;box-shadow:0 4px 24px rgba(0,0,0,0.35);overflow:visible;width:210mm;min-width:210mm">
+            <div id="fd-preview-wrap" style="padding:10mm 12mm 8mm 12mm;min-height:500px;overflow:visible;position:relative">
+              </div>
+            <div id="fd-image-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10">
+              </div>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+ 
+    <div id="stab-content-links" style="display:none">
+      <div class="settings-section" style="max-width:760px">
+        <div class="settings-title">New Report — Quick Search</div>
+        <div class="form-group">
+          <label>When a subcategory is picked from quick search</label>
+          <select id="s-nr-subcategory-mode" class="form-input" onchange="saveSettings()">
+            <option value="subcategory">Add only that subcategory</option>
+            <option value="category">Add the whole category</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section" style="max-width:760px">
+        <div class="settings-title">🔗 Linked Subcategories</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px">
+          Group subcategories that should always be ordered together (e.g. CBC + DC). When the setting above
+          is set to <b>Add only that subcategory</b>, picking any one member from quick search will also add the rest
+          of its group. This has no effect when that setting is "Add the whole category".
+        </div>
+
+        <div id="s-links-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+          <div style="color:var(--muted);font-size:13px">Loading…</div>
+        </div>
+
+        <button class="btn btn-outline" onclick="openLinkGroupModal()">➕ New Linked Group</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page" id="page-backup">
+    <div style="max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:20px">
+ 
+      <div class="settings-section">
+        <div class="settings-title">📤 Export / Backup</div>
+        <p style="color:var(--text-muted);font-size:13px;margin:0 0 16px">
+          Choose a format to export your lab data. The <strong>.db</strong> file is the only format that can be restored back into the system.
+          PDF and Excel exports are for records, printing, or sharing.
+        </p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+ 
+          <div style="border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;background:var(--bg-main)">
+            <div style="font-size:28px;margin-bottom:6px">🗄️</div>
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">Database</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">.db — Full backup<br/>Restorable</div>
+            <button class="btn btn-primary" style="width:100%;font-size:12px;padding:7px" onclick="backupFormat('db')" id="backup-btn-db">
+              ⬇ Download .db
+            </button>
+          </div>
+ 
+          <div style="border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;background:var(--bg-main)">
+            <div style="font-size:28px;margin-bottom:6px">📊</div>
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">Excel</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">.xlsx — All sheets<br/>Patients, Bills, Reports…</div>
+            <button class="btn btn-outline" style="width:100%;font-size:12px;padding:7px;color:#16a34a;border-color:#16a34a" onclick="backupFormat('excel')" id="backup-btn-excel">
+              ⬇ Download .xlsx
+            </button>
+          </div>
+ 
+          <div style="border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;background:var(--bg-main)">
+            <div style="font-size:28px;margin-bottom:6px">📄</div>
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">PDF Report</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">.pdf — Printable<br/>summary of all data</div>
+            <button class="btn btn-outline" style="width:100%;font-size:12px;padding:7px;color:#dc2626;border-color:#dc2626" onclick="backupFormat('pdf')" id="backup-btn-pdf">
+              ⬇ Download .pdf
+            </button>
+          </div>
+ 
+        </div>
+        <div id="backup-status" style="margin-top:14px;font-size:13px;color:var(--text-muted)"></div>
+      </div>
+ 
+      <div class="settings-section">
+        <div class="settings-title">📥 Restore Database</div>
+        <p style="color:var(--text-muted);font-size:13px;margin:0 0 8px">
+          Select a previously downloaded <strong>.db</strong> backup file to restore. 
+          <span style="color:#ef4444;font-weight:600">⚠ This will overwrite all current data.</span>
+        </p>
+ 
+        <div style="border:2px dashed var(--border);border-radius:10px;padding:28px 20px;text-align:center;transition:border-color .2s;cursor:pointer"
+             id="restore-drop-zone"
+             ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+             ondragleave="this.style.borderColor='var(--border)'"
+             ondrop="handleRestoreDrop(event)">
+          <div style="font-size:32px;margin-bottom:8px">📂</div>
+          <div style="font-weight:600;margin-bottom:4px">Drag & drop your .db file here</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">or click to browse</div>
+          <input type="file" id="restore-file-input" accept=".db" style="display:none" onchange="previewRestoreFile(this)"/>
+          <button class="btn btn-outline" onclick="document.getElementById('restore-file-input').click()">Browse File</button>
+        </div>
+ 
+        <div id="restore-preview" style="display:none;margin-top:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:14px">
+          <div style="font-weight:600;margin-bottom:8px;font-size:13px">📋 Selected File</div>
+          <div id="restore-file-info" style="font-size:13px;color:var(--text-muted);margin-bottom:12px"></div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="restoreDB()" id="restore-btn">
+              🔄 Restore Now
+            </button>
+            <button class="btn btn-outline" onclick="clearRestoreSelection()">Cancel</button>
+          </div>
+        </div>
+ 
+        <div id="restore-status" style="margin-top:12px;font-size:13px"></div>
+      </div>
+ 
+      <div class="settings-section">
+        <div class="settings-title">ℹ️ Backup Info</div>
+        <div id="backup-info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
+          <div style="background:var(--bg-main);border-radius:8px;padding:12px">
+            <div style="color:var(--text-muted);margin-bottom:4px">Total Patients</div>
+            <div style="font-weight:700;font-size:20px" id="bk-patients">—</div>
+          </div>
+          <div style="background:var(--bg-main);border-radius:8px;padding:12px">
+            <div style="color:var(--text-muted);margin-bottom:4px">Total Reports</div>
+            <div style="font-weight:700;font-size:20px" id="bk-reports">—</div>
+          </div>
+          <div style="background:var(--bg-main);border-radius:8px;padding:12px">
+            <div style="color:var(--text-muted);margin-bottom:4px">Total Doctors</div>
+            <div style="font-weight:700;font-size:20px" id="bk-doctors">—</div>
+          </div>
+          <div style="background:var(--bg-main);border-radius:8px;padding:12px">
+            <div style="color:var(--text-muted);margin-bottom:4px">Total Bills</div>
+            <div style="font-weight:700;font-size:20px" id="bk-bills">—</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-muted)">
+          💡 Tip: Take a backup before every major change. Store copies in Google Drive or a USB drive.
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+ 
+  <div class="page" id="page-about">
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 20px; width:100%; height:100%; margin:0 auto; box-sizing:border-box">
+      <div style="font-size:64px; margin-bottom:8px">🧪</div>
+      <div style="font-size:40px; font-weight:700; color:var(--text); margin-bottom:10px">LabSoft</div>
+      <div style="font-size:20px; color:var(--muted); margin-bottom:28px">Lab Report &amp; Billing Software</div>
+      <div style="font-size:28px; font-weight:600; color:var(--text); margin-bottom:8px">by KriscSoft</div>
+      <div style="font-size:24px; color:var(--text); margin-bottom:36px">Contact: 9894295732</div>
+      <div style="border-top:1px solid var(--border); padding-top:20px; font-size:14px; color:var(--muted); max-width:520px">
+        <div>
+          &copy; 2026 LabSoft. All rights reserved.
+          &nbsp;&bull;&nbsp;
+          This application has been successfully running
+          <span id="footer-session-count">…</span> times
+        </div>
+        <div id="app-footer-license-line" style="margin-top:8px; text-align:center; width:100%"></div>
+      </div>
+    </div>
+  </div>
+</main>
+ 
+<div class="modal-overlay" id="patient-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="patient-modal-title">Add Patient</div>
+      <button class="modal-close" onclick="closeModal('patient-modal')">✕</button>
+    </div>
+    <input type="hidden" id="edit-patient-id"/>
+    <div class="form-row">
+      <div class="form-group" style="flex:0 0 130px">
+        <label>Greeting</label>
+        <select id="p-greeting" class="form-input">
+          <option value="">Auto</option>
+          <option value="Mr.">Mr.</option>
+          <option value="Mrs.">Mrs.</option>
+          
+          <option value="Miss">Miss</option>
+          
+          <option value="Dr.">Dr.</option>
+          <option value="Prof.">Prof.</option>
+          <option value="Master">Master</option>
+          <option value="Baby">Baby</option>
+          <option value="Child">Child</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="p-name" class="form-input" placeholder="John Doe"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Age <span class="req-star">*</span></label>
+        <input type="number" id="p-age" class="form-input" placeholder="25" min="0" max="150"/>
+      </div>
+      <div class="form-group">
+        <label>Gender <span class="req-star">*</span></label>
+        <select id="p-gender" class="form-input">
+          <option value="">Select</option>
+          <option>Male</option><option>Female</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Blood Group</label>
+        <select id="p-blood" class="form-input">
+          <option value="">Select</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" id="p-phone" class="form-input" placeholder="+91-9999999999"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="p-email" class="form-input" placeholder="patient@email.com"/>
+      </div>
+      <div class="form-group">
+        <label>Address</label>
+        <input type="text" id="p-address" class="form-input" placeholder="Street, City"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>OP / IP</label>
+        <input type="text" id="p-op-ip" class="form-input" placeholder="e.g. OP-1023 or IP-45"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('patient-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePatient()">Save Patient</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="doctor-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Doctor / Referral</div>
+      <button class="modal-close" onclick="closeModal('doctor-modal')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Doctor Name *</label>
+        <input type="text" id="d-name" class="form-input" placeholder="Dr. Smith"/>
+      </div>
+      <div class="form-group">
+        <label>Specialization</label>
+        <input type="text" id="d-spec" class="form-input" placeholder="Cardiologist"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Hospital / Clinic</label>
+        <input type="text" id="d-hospital" class="form-input" placeholder="City Hospital"/>
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" id="d-phone" class="form-input" placeholder="+91-9999999999"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="d-email" class="form-input" placeholder="doctor@hospital.com"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('doctor-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDoctor()">Save Doctor</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="upload-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">Upload Lab Report PDF</div>
+      <button class="modal-close" onclick="closeModal('upload-modal')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Patient *</label>
+        <select id="u-patient" class="form-input"></select>
+      </div>
+      <div class="form-group">
+        <label>Referred by Doctor</label>
+        <select id="u-doctor" class="form-input"><option value="">None</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Report Title</label>
+        <input type="text" id="u-title" class="form-input" placeholder="CBC Blood Test"/>
+      </div>
+      <div class="form-group">
+        <label>Report Date</label>
+        <input type="date" id="u-date" class="form-input"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>PDF File *</label>
+      <div class="file-drop" id="file-drop-zone" onclick="document.getElementById('u-file').click()">
+        <div class="file-drop-icon">📄</div>
+        <div class="file-drop-text">Click or drag PDF here</div>
+        <div class="file-drop-sub" id="file-selected-name">No file chosen</div>
+      </div>
+      <input type="file" id="u-file" accept=".pdf" style="display:none" onchange="onFileSelect(this)"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('upload-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="uploadReport()">Upload & Extract</button>
+    </div>
+  </div>
+</div>
+ 
+ 
+ 
+<div class="modal-overlay" id="appt-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">Book Appointment</div>
+      <button class="modal-close" onclick="closeModal('appt-modal')">✕</button>
+    </div>
+    <input type="hidden" id="edit-appt-id"/>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Patient *</label>
+        <select id="appt-patient" class="form-input"></select>
+      </div>
+      <div class="form-group">
+        <label>Referred By</label>
+        <select id="appt-doctor" class="form-input"><option value="">None</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date *</label>
+        <input type="date" id="appt-date" class="form-input"/>
+      </div>
+      <div class="form-group">
+        <label>Time</label>
+        <input type="time" id="appt-time" class="form-input"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Tests Requested</label>
+      <input type="text" id="appt-tests" class="form-input" placeholder="e.g. CBC, LFT, Blood Sugar"/>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <input type="text" id="appt-notes" class="form-input" placeholder="Any special instructions..."/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('appt-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAppointment()">Book Appointment</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="add-test-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Test to Catalog</div>
+      <button class="modal-close" onclick="closeModal('add-test-modal')">✕</button>
+    </div>
+    <input type="hidden" id="t-name"/>
+    <input type="hidden" id="t-cat"/>
+    <div class="form-group">
+      <label>Category *</label>
+      <select id="t-stage1" class="form-input" onchange="onAddTestStage1Change()">
+        <option value="">— Select Category —</option>
+        <option value="__new__">➕ Add New Category...</option>
+      </select>
+      <input type="text" id="t-stage1-new" class="form-input" placeholder="New category name (e.g. HAEMATOLOGY)" style="display:none;margin-top:6px" oninput="this.value=this.value.toUpperCase()"/>
+    </div>
+    <div id="t-stage23-wrap" style="display:none">
+      <div class="form-group">
+        <label>Subcategory <span style="font-size:11px;color:var(--muted)">(optional)</span></label>
+        <select id="t-stage2" class="form-input" onchange="onAddTestStage2Change()">
+          <option value="">— Skip Subcategory —</option>
+        </select>
+        <input type="text" id="t-stage2-new" class="form-input" placeholder="New subcategory name (e.g. COMPLETE BLOOD COUNT)" style="display:none;margin-top:6px" oninput="this.value=this.value.toUpperCase()"/>
+      </div>
+      <div class="form-group">
+        <label>Test Name *</label>
+        <input type="text" id="t-stage3" class="form-input" placeholder="e.g. Hemoglobin"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Unit</label>
+        <input type="text" id="t-unit" class="form-input" placeholder="g/dL"/>
+      </div>
+      <div class="form-group">
+        <label>Normal Min</label>
+        <input type="number" id="t-min" class="form-input" placeholder="e.g. 12.0" step="0.1"/>
+      </div>
+      <div class="form-group">
+        <label>Normal Max</label>
+        <input type="number" id="t-max" class="form-input" placeholder="e.g. 17.5" step="0.1"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Normal Range Text (optional)</label>
+      <input type="text" id="t-normal-text" class="form-input" placeholder="e.g. <200 Desirable"/>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <input type="text" id="t-desc" class="form-input" placeholder="Brief description of this test"/>
+    </div>
+    <div class="form-group">
+      <label>Amount (₹)</label>
+      <input type="number" id="t-amount" class="form-input" placeholder="e.g. 150" min="0" step="0.01"/>
+    </div>
+    <div class="form-group">
+      <label>Constant Reference Table <span style="font-size:11px;color:var(--muted)">(optional — fixed rows printed under this test's result, e.g. Non Diabetics / Goal / Good Control)</span></label>
+      <div id="t-reftable-rows"></div>
+      <button type="button" class="btn btn-outline" style="margin-top:6px;padding:6px 12px;font-size:12px" onclick="addRefTableRow('t')">+ Add Row</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('add-test-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTest()">Add Test</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="edit-test-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Edit Test</div>
+      <button class="modal-close" onclick="closeModal('edit-test-modal')">✕</button>
+    </div>
+    <input type="hidden" id="et-id"/>
+    <input type="hidden" id="et-name"/>
+    <input type="hidden" id="et-cat"/>
+    <div class="form-group">
+      <label>Category *</label>
+      <select id="et-stage1" class="form-input" onchange="onEditTestStage1Change()">
+        <option value="">— Select Category —</option>
+      </select>
+    </div>
+    <div id="et-stage23-wrap" style="display:none">
+      <div class="form-group">
+        <label>Subcategory <span style="font-size:11px;color:var(--muted)">(optional)</span></label>
+        <select id="et-stage2" class="form-input" onchange="onEditTestStage2Change()">
+          <option value="">— Skip Subcategory —</option>
+        </select>
+        <input type="text" id="et-stage2-new" class="form-input" placeholder="New subcategory name (e.g. COMPLETE BLOOD COUNT)" style="display:none;margin-top:6px" oninput="this.value=this.value.toUpperCase()"/>
+      </div>
+      <div class="form-group">
+        <label>Test Name *</label>
+        <input type="text" id="et-stage3" class="form-input" placeholder="e.g. Hemoglobin"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Unit</label>
+        <input type="text" id="et-unit" class="form-input"/>
+      </div>
+      <div class="form-group">
+        <label>Normal Min</label>
+        <input type="number" id="et-min" class="form-input" step="0.01"/>
+      </div>
+      <div class="form-group">
+        <label>Normal Max</label>
+        <input type="number" id="et-max" class="form-input" step="0.01"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Normal Range Text</label>
+      <input type="text" id="et-normal-text" class="form-input"/>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <input type="text" id="et-desc" class="form-input"/>
+    </div>
+    <div class="form-group">
+      <label>Amount (₹)</label>
+      <input type="number" id="et-amount" class="form-input" placeholder="e.g. 150" min="0" step="0.01"/>
+    </div>
+    <div class="form-group">
+      <label>Interpretation</label>
+      <textarea id="et-interpretation" class="form-input" rows="4" style="resize:vertical"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Constant Reference Table <span style="font-size:11px;color:var(--muted)">(optional — fixed rows printed under this test's result, e.g. Non Diabetics / Goal / Good Control)</span></label>
+      <div id="et-reftable-rows"></div>
+      <button type="button" class="btn btn-outline" style="margin-top:6px;padding:6px 12px;font-size:12px" onclick="addRefTableRow('et')">+ Add Row</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('edit-test-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditTest()">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="edit-stage-modal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title" id="edit-stage-modal-title">✏️ Edit</div>
+      <button class="modal-close" onclick="closeModal('edit-stage-modal')">✕</button>
+    </div>
+    <input type="hidden" id="es-level"/>
+    <input type="hidden" id="es-id"/>
+    <div class="form-group">
+      <label id="es-label">Name</label>
+      <input type="text" id="es-name" class="form-input"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('edit-stage-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditStage()">💾 Save</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="edit-interp-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Edit Interpretation</div>
+      <button class="modal-close" onclick="closeModal('edit-interp-modal')">✕</button>
+    </div>
+    <input type="hidden" id="ei-id"/>
+    <div class="form-group">
+      <label>Test Name</label>
+      <input type="text" id="ei-name" class="form-input" readonly style="opacity:.6"/>
+    </div>
+    <div class="form-group">
+      <label>Interpretation Text</label>
+      <textarea id="ei-text" class="form-input" rows="6" style="resize:vertical"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('edit-interp-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditInterp()">💾 Save</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="add-interp-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">➕ Add Interpretation</div>
+      <button class="modal-close" onclick="closeModal('add-interp-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Test Name <span style="color:red">*</span></label>
+      <input type="text" id="ai-name" class="form-input" placeholder="Type to search test..." oninput="searchInterpTest(this.value)" autocomplete="off"/>
+      <div id="ai-suggestions" style="border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;max-height:160px;overflow-y:auto;display:none;background:var(--card);position:relative;z-index:10"></div>
+      <input type="hidden" id="ai-test-id"/>
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <input type="text" id="ai-category" class="form-input" readonly style="opacity:.6" placeholder="Auto-filled"/>
+    </div>
+    <div class="form-group">
+      <label>Interpretation Text <span style="color:red">*</span></label>
+      <textarea id="ai-text" class="form-input" rows="6" style="resize:vertical" placeholder="Enter interpretation / clinical notes..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('add-interp-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAddInterp()">💾 Save</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="edit-reftable-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Edit Reference Table</div>
+      <button class="modal-close" onclick="closeModal('edit-reftable-modal')">✕</button>
+    </div>
+    <input type="hidden" id="ert-id"/>
+    <div class="form-group">
+      <label>Test Name</label>
+      <input type="text" id="ert-name" class="form-input" readonly style="opacity:.6"/>
+    </div>
+    <div class="form-group">
+      <label>Reference Rows <span style="font-size:11px;color:var(--muted)">(label / value pairs, e.g. Non Diabetics — 4.0 - 6.0 %)</span></label>
+      <div id="ert-reftable-rows"></div>
+      <button type="button" class="btn btn-outline" style="margin-top:6px;padding:6px 12px;font-size:12px" onclick="addRefTableRow('ert')">+ Add Row</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('edit-reftable-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditRefTable()">💾 Save</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="add-reftable-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">➕ Add Reference Table</div>
+      <button class="modal-close" onclick="closeModal('add-reftable-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Test Name <span style="color:red">*</span></label>
+      <input type="text" id="art-name" class="form-input" placeholder="Type to search test..." oninput="searchRefTableTest(this.value)" autocomplete="off"/>
+      <div id="art-suggestions" style="border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;max-height:160px;overflow-y:auto;display:none;background:var(--card);position:relative;z-index:10"></div>
+      <input type="hidden" id="art-test-id"/>
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <input type="text" id="art-category" class="form-input" readonly style="opacity:.6" placeholder="Auto-filled"/>
+    </div>
+    <div class="form-group">
+      <label>Reference Rows <span style="font-size:11px;color:var(--muted)">(label / value pairs, e.g. Non Diabetics — 4.0 - 6.0 %)</span></label>
+      <div id="art-reftable-rows"></div>
+      <button type="button" class="btn btn-outline" style="margin-top:6px;padding:6px 12px;font-size:12px" onclick="addRefTableRow('art')">+ Add Row</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('add-reftable-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAddRefTable()">💾 Save</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="calc-rule-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="calc-rule-modal-title">➕ Add Calculation</div>
+      <button class="modal-close" onclick="closeModal('calc-rule-modal')">✕</button>
+    </div>
+    <input type="hidden" id="cr-id"/>
+    <div class="form-group">
+      <label>Output Test <span style="color:red">*</span> <span style="font-size:11px;color:var(--muted)">(the test whose result gets filled in automatically)</span></label>
+      <input type="text" id="cr-output" class="form-input" placeholder="Type to search test..." oninput="crSearchTest(this.value,'output')" autocomplete="off"/>
+      <div id="cr-output-suggestions" class="cr-suggestions" style="display:none"></div>
+    </div>
+    <div class="form-group">
+      <label>Operation <span style="color:red">*</span></label>
+      <select id="cr-operation" class="form-input" onchange="crApplyOperationVisibility()">
+        <option value="axb_div100">A × B ÷ 100</option>
+        <option value="a_div_b">A ÷ B</option>
+        <option value="a_plus_b">A + B</option>
+        <option value="a_minus_b">A − B</option>
+        <option value="a_div_const">A ÷ constant</option>
+        <option value="a_mult_const">A × constant</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Input A <span style="color:red">*</span></label>
+      <input type="text" id="cr-input-a" class="form-input" placeholder="Type to search test..." oninput="crSearchTest(this.value,'input_a')" autocomplete="off"/>
+      <div id="cr-input_a-suggestions" class="cr-suggestions" style="display:none"></div>
+    </div>
+    <div class="form-group" id="cr-input-b-group">
+      <label>Input B <span style="color:red">*</span></label>
+      <input type="text" id="cr-input-b" class="form-input" placeholder="Type to search test..." oninput="crSearchTest(this.value,'input_b')" autocomplete="off"/>
+      <div id="cr-input_b-suggestions" class="cr-suggestions" style="display:none"></div>
+    </div>
+    <div class="form-group" id="cr-const-group" style="display:none">
+      <label>Constant <span style="color:red">*</span></label>
+      <input type="number" id="cr-constant" class="form-input" step="any" placeholder="e.g. 5"/>
+    </div>
+    <div class="form-group">
+      <label>Decimal Places</label>
+      <select id="cr-decimals" class="form-input">
+        <option value="0">0 (whole number)</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('calc-rule-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCalcRule()">💾 Save</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="stage-modal">
+  <div class="modal modal-sm" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title" id="stage-modal-title">Add Stage</div>
+      <button class="modal-close" onclick="closeModal('stage-modal')">✕</button>
+    </div>
+    <div id="stage-modal-parent-info" style="font-size:12px;color:var(--muted);margin-bottom:10px"></div>
+ 
+    <!-- Catalog-only picker: search + list -->
+    <div id="stage-modal-catalog-wrap" style="margin-bottom:12px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">
+        📋 <span id="stage-modal-label">Select from Test Catalog</span>
+      </div>
+      <input type="text" id="stage-new-name" class="form-input" placeholder="🔍 Search catalog…" oninput="filterStageModalCatalog()" style="margin-bottom:8px"/>
+      <div id="stage-modal-catalog-list"
+           style="max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-secondary)">
+        <div style="padding:14px;text-align:center;color:var(--muted);font-size:13px">Loading…</div>
+      </div>
+      <div id="stage-modal-selected-wrap" style="display:none;margin-top:8px;padding:8px 12px;background:var(--bg-tertiary,#f0fdf4);border:1px solid #86efac;border-radius:8px;font-size:13px;color:#16a34a;font-weight:600">
+        ✓ Selected: <span id="stage-modal-selected-label"></span>
+      </div>
+    </div>
+ 
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('stage-modal')">Cancel</button>
+      <button class="btn btn-primary" id="stage-modal-save-btn" onclick="saveStageItem()" disabled>Add</button>
+    </div>
+  </div>
+</div>
+ 
+ 
+<div class="modal-overlay" id="link-group-modal">
+  <div class="modal modal-sm" style="max-width:520px">
+    <div class="modal-header">
+      <div class="modal-title" id="link-group-modal-title">New Linked Group</div>
+      <button class="modal-close" onclick="closeModal('link-group-modal')">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label>Group Name (optional)</label>
+      <input type="text" id="lg-name" class="form-input" placeholder="e.g. CBC + DC"/>
+    </div>
+
+    <div class="form-group">
+      <label>Search Subcategories</label>
+      <input type="text" id="lg-search" class="form-input" placeholder="🔍 Filter…" oninput="renderLinkGroupPicker()"/>
+    </div>
+
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Select at least two subcategories to link together:</div>
+    <div id="lg-picker-list" style="max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-secondary)">
+      <div style="padding:14px;text-align:center;color:var(--muted);font-size:13px">Loading…</div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('link-group-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLinkGroup()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="new-report-modal">
+  <div class="modal" style="max-width:900px;width:97%">
+    <div class="modal-header">
+      <div class="modal-title">🧪 New Test Report Entry</div>
+      <button class="modal-close" onclick="closeModal('new-report-modal')">✕</button>
+    </div>
+ 
+    <div class="nr-modal-body">
+ 
+      <div style="display:flex;gap:0;margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
+        <button id="nr-toggle-list" onclick="nrSetPatientMode('list')"
+          style="padding:6px 18px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:var(--primary);color:#fff;transition:.2s">
+          👤 From Patient List
+        </button>
+        <button id="nr-toggle-manual" onclick="nrSetPatientMode('manual')"
+          style="padding:6px 18px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:var(--bg);color:var(--muted);transition:.2s">
+          ✏️ Enter Manually
+        </button>
+      </div>
+ 
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+ 
+        <div id="nr-list-mode" class="form-group">
+          <label>Patient *</label>
+          <select id="nr-patient" class="form-input" onchange="fillNrPatient()">
+            <option value="">Select Patient…</option>
+          </select>
+        </div>
+ 
+        <div id="nr-manual-mode" style="display:none;grid-column:1/-1">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label>Greeting</label>
+              <select id="nr-manual-greeting" class="form-input">
+                <option value="">Auto</option>
+                <option value="Mr.">Mr.</option>
+                <option value="Mrs.">Mrs.</option>
+                
+                <option value="Miss">Miss</option>
+                
+                <option value="Dr.">Dr.</option>
+                <option value="Prof.">Prof.</option>
+                <option value="Master">Master</option>
+                <option value="Baby">Baby</option>
+                <option value="Child">Child</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Patient Name *</label>
+              <input type="text" id="nr-manual-name" class="form-input" placeholder="Full name"/>
+            </div>
+            <div class="form-group">
+              <label>Age</label>
+              <input type="text" id="nr-manual-age" class="form-input" placeholder="e.g. 35"/>
+            </div>
+            <div class="form-group">
+              <label>Gender <span class="req-star">*</span></label>
+              <select id="nr-manual-gender" class="form-input" onchange="if(nrSections.length) _nrApplyRefLabToAllSections()">
+                <option value="">Select…</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="text" id="nr-manual-phone" class="form-input" placeholder="Mobile number"/>
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label>Address</label>
+              <input type="text" id="nr-manual-address" class="form-input" placeholder="Optional"/>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="form-group">
+          <label>Referred By (Doctor)</label>
+          <div id="nr-doc-toggle-btns" style="display:flex;gap:0;margin-bottom:7px;border:1px solid var(--border);border-radius:6px;overflow:hidden;width:fit-content">
+            <button id="nr-doc-toggle-list" onclick="nrSetDoctorMode('list')"
+              style="padding:4px 14px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:var(--primary);color:#fff;transition:.2s">
+              👤 From List
+            </button>
+            <button id="nr-doc-toggle-manual" onclick="nrSetDoctorMode('manual')"
+              style="padding:4px 14px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:var(--bg);color:var(--muted);transition:.2s">
+              ✏️ Enter Manually
+            </button>
+          </div>
+          <div id="nr-doc-list-mode">
+            <select id="nr-doctor-select" class="form-input">
+              <option value="">Select Doctor…</option>
+            </select>
+          </div>
+          <div id="nr-doc-manual-mode" style="display:none">
+            <input type="text" id="nr-doctor" class="form-input" placeholder="Enter doctor name…"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Patient No / Ref No</label>
+          <input type="text" id="nr-patient-no" class="form-input" placeholder="e.g. 3457"/>
+        </div>
+        <div class="form-group">
+          <label>OP / IP</label>
+          <input type="text" id="nr-op-ip" class="form-input" placeholder="e.g. OP-1023 or IP-45"/>
+        </div>
+        <div class="form-group">
+          <label>Collected Date &amp; Time</label>
+          <input type="datetime-local" id="nr-collected" class="form-input"/>
+        </div>
+        <div class="form-group">
+          <label>Reported Date &amp; Time</label>
+          <input type="datetime-local" id="nr-reported" class="form-input"/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>🏥 Reference Lab <span style="font-size:11px;font-weight:400;color:var(--muted)">(optional — use another lab's reference ranges)</span></label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="nr-ref-lab" class="form-input" onchange="nrOnRefLabChange()" style="max-width:340px">
+              <option value="">— Use default ranges —</option>
+            </select>
+            <span id="nr-ref-lab-badge" style="display:none;font-size:11px;padding:3px 10px;background:#0d9488;color:#fff;border-radius:12px;white-space:nowrap"></span>
+          </div>
+        </div>
+      </div>
+ 
+      <div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span id="nr-step-label" style="font-weight:600;font-size:13px;color:var(--primary)">Select Tests</span>
+          <span id="nr-step-count" style="font-size:11px;color:var(--muted)"></span>
+        </div>
+ 
+        <div id="nr-select-controls">
+          <div style="position:relative;margin-bottom:12px">
+            <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.5px">⚡ QUICK ADD — search any test directly</div>
+            <div style="display:flex;gap:8px">
+              <div style="position:relative;flex:1">
+                <input type="text" id="nr-quick-search" class="form-input"
+                  placeholder="e.g. Haemoglobin, TSH, Creatinine, Urea..."
+                  autocomplete="off"
+                  oninput="nrQuickSearch(this.value)"
+                  onkeydown="nrQuickKeyNav(event)"
+                  style="padding-right:32px"/>
+                <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none">🔍</span>
+                <div id="nr-quick-results"
+                  style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:9999;
+                         background:var(--surface);border:1px solid var(--border);border-radius:8px;
+                         box-shadow:0 8px 28px rgba(0,0,0,.5);max-height:280px;overflow-y:auto">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+ 
+        <div id="nr-sections">
+          </div>
+      </div>
+    </div>
+ 
+    <div class="modal-footer" id="nr-footer-step1">
+      <button class="btn btn-outline" onclick="closeModal('new-report-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="goToResultsStep()">🖨️ Preview &amp; Enter Results</button>
+    </div>
+  </div>
+</div>
+ 
+<div id="print-area" style="display:none">
+  <!-- Add page-break-after:avoid spacer before footer block to prevent content from flowing into footer -->
+  <div style="page-break-after:avoid; break-after:avoid; height:0;"></div>
+</div>
+ 
+<style id="print-styles">
+@media print {
+  body > *:not(#print-area) { display: none !important; }
+  #print-area { display: block !important; margin: 0; padding: 0; }
+  #print-area .preview-print-bar { display: none !important; }
+  @page { size: A4 portrait; margin: 0; }
+  
+  /* Signature & Logo Fixes */
+  .rpt-signatures, .rpt-sig-box, .rpt-logo, .rpt-header img {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  .rpt-signatures {
+    display: flex !important;
+    justify-content: space-around !important;
+    width: 100% !important;
+  }
+}
+ 
+/* ── Full-page A4 report layout ── */
+#print-area .rpt-wrap {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0;
+  padding: 8mm 10mm 6mm 10mm;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+ 
+/* ── Settings Tabs ── */
+.settings-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 18px 10px;
+  transition: all .15s;
+}
+.settings-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+.settings-tab:hover:not(.active) { color: var(--text); }
+ 
+/* ── Form Designer preset buttons ── */
+.fd-preset {
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+  opacity: 0.88;
+  transition: opacity .15s;
+}
+.fd-preset:hover { opacity: 1; }
+ 
+/* ── Drag-and-drop element rows ── */
+#fd-elements-list [data-key] {
+  transition: opacity .15s, box-shadow .15s, border-color .15s;
+}
+#fd-elements-list [data-key]:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+#fd-elements-list [data-key].fd-drag-over {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--primary);
+}
+.fd-drag-handle:active { cursor: grabbing; }
+ 
+/* ── Preview drag-and-drop sections ── */
+.fd-preview-section {
+  position: relative;
+  transition: box-shadow .15s;
+}
+.fd-preview-section:hover > .fd-preview-drag-handle {
+  opacity: 1;
+}
+.fd-preview-drag-handle {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary, #c0392b);
+  color: #fff;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity .2s, transform .15s;
+  z-index: 50;
+  user-select: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  pointer-events: all;
+}
+.fd-preview-drag-handle:hover {
+  transform: scale(1.1);
+  opacity: 1 !important;
+}
+.fd-preview-drag-handle:active { cursor: grabbing; transform: scale(0.95); }
+.fd-preview-section:hover {
+  outline: 1.5px dashed rgba(192,57,43,0.35);
+  outline-offset: 1px;
+}
+.fd-preview-section.fd-preview-drag-over-top {
+  box-shadow: 0 -3px 0 0 var(--primary, #c0392b) !important;
+  outline: none !important;
+}
+.fd-preview-section.fd-preview-drag-over-bottom {
+  box-shadow: 0 3px 0 0 var(--primary, #c0392b) !important;
+  outline: none !important;
+}
+/* Placeholder holds the space of the dragged element */
+.fd-preview-placeholder {
+  flex-shrink: 0;
+  pointer-events: none;
+  transition: height .1s;
+}
+ 
+/* ── Free-position image canvas ── */
+#fd-canvas-wrap {
+  position: relative;
+}
+#fd-image-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+#fd-image-overlay [data-img-idx] {
+  transition: border-color .1s;
+}
+#fd-image-overlay [data-img-idx]:hover {
+  border-color: var(--primary) !important;
+  border-style: solid !important;
+}
+ 
+/* ── Sig editor rows ── */
+.fd-sig-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 28px;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.fd-sig-row input { font-size: 11px; padding: 5px 8px; }
+ 
+/* ── Screen preview: floating toolbar + A4 paper simulation ── */
+#print-area.preview-mode {
+  display: block !important;
+  position: fixed;
+  inset: 0;
+  background: #4a4a4a;
+  z-index: 9999;
+  overflow-y: auto;
+}
+.preview-print-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+  background: #2d2d2d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.preview-print-bar button {
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+.btn-do-print { background: #c0392b; color: #fff; }
+.btn-close-preview { background: #555; color: #fff; }
+ 
+#print-area.preview-mode .rpt-wrap {
+  background: #fff;
+  margin: 16px auto;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.5);
+  /* A4 at 96dpi screen approximation */
+  width: 794px;
+  min-height: 1123px;
+  padding: 30px 38px 24px 38px;
+}
+</style>
+ 
+ 
+ 
+ 
+<!-- Interpretation Picker Modal -->
+<div class="modal-overlay" id="interp-picker-modal">
+  <div class="modal" style="max-width:560px;width:95%">
+    <div class="modal-header">
+      <div class="modal-title">📋 Select Interpretations for Report</div>
+      <button class="modal-close" onclick="closeModal('interp-picker-modal')">✕</button>
+    </div>
+    <div style="padding:4px 0 10px;font-size:12px;color:var(--muted)">
+      Choose which clinical notes &amp; interpretations to include in the printed report.
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <button class="btn btn-sm btn-outline" style="font-size:11px;padding:4px 12px" onclick="interpPickerSelectAll(true)">✓ Select All</button>
+      <button class="btn btn-sm btn-outline" style="font-size:11px;padding:4px 12px" onclick="interpPickerSelectAll(false)">✕ Deselect All</button>
+    </div>
+    <div id="interp-picker-list" style="max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px"></div>
+    <div class="modal-footer" style="margin-top:14px">
+      <button class="btn btn-outline" onclick="closeModal('interp-picker-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmInterpPickerAndPrint()">🖨️ Print Report</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"></div>
+ 
+<!-- ══════════════════════════════════════════════════
+     LICENSE ACTIVATION OVERLAY
+     ══════════════════════════════════════════════════ -->
+<div id="expiryWarningOverlay" style="
+  display:none; position:fixed; inset:0; z-index:99998;
+  background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center;">
+  <div style="
+    background:var(--surface,#161b22); border:1px solid var(--border,#30363d);
+    border-radius:14px; padding:28px 32px; max-width:420px; width:92%;
+    box-shadow:0 24px 80px rgba(0,0,0,0.5); text-align:center;">
+    <div style="font-size:36px; margin-bottom:12px;">⚠️</div>
+    <h2 style="margin:0 0 10px; font-size:18px; font-weight:700; color:var(--text,#e6edf3);">
+      License expiring soon
+    </h2>
+    <p id="expiryWarningText" style="margin:0 0 22px; font-size:14px; color:var(--muted,#8b949e); line-height:1.5;">
+    </p>
+    <button onclick="closeExpiryWarning()" style="
+      background:#7c6aff; color:#fff; border:none; border-radius:8px;
+      padding:10px 24px; font-size:14px; font-weight:600; cursor:pointer;">
+      Got it
+    </button>
+  </div>
+</div>
+ 
+<div id="licenseOverlay" style="
+  display:none; position:fixed; inset:0; z-index:99999;
+  background:rgba(10,10,20,0.92); backdrop-filter:blur(8px);
+  align-items:center; justify-content:center;">
+  <div style="
+    background:linear-gradient(135deg,#1a1f35 0%,#0f1525 100%);
+    border:1px solid rgba(99,179,237,0.3); border-radius:16px;
+    padding:40px 44px; max-width:520px; width:92%; box-shadow:0 24px 80px rgba(0,0,0,0.7);
+    font-family:'Segoe UI',sans-serif; color:#e2e8f0;">
+ 
+    <!-- Header -->
+    <div style="text-align:center; margin-bottom:28px;">
+      <div style="font-size:48px; margin-bottom:10px;">🔐</div>
+      <h2 id="licModalTitle" style="margin:0 0 6px; font-size:22px; font-weight:700; color:#63b3ed;">
+        Software Activation Required
+      </h2>
+      <p id="licModalSubtitle" style="margin:0; font-size:13px; color:#a0aec0;">
+        Send your System Code to the developer to receive an activation key.
+      </p>
+    </div>
+ 
+    <!-- Machine ID display -->
+    <div style="background:rgba(99,179,237,0.08); border:1px solid rgba(99,179,237,0.2);
+      border-radius:10px; padding:14px 18px; margin-bottom:22px;">
+      <div style="font-size:11px; color:#90cdf4; text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px;">
+        Your System Code <span style="color:#718096; font-size:10px; text-transform:none;">(send this to the developer)</span>
+      </div>
+      <!-- Copyable textarea — user can select-all and copy without missing characters -->
+      <textarea id="licMachineId" readonly rows="3" onclick="this.select()" style="
+        width:100%; box-sizing:border-box; resize:none;
+        background:rgba(0,0,0,0.3); border:1px solid rgba(99,179,237,0.3);
+        border-radius:8px; padding:10px 12px; color:#f6e05e;
+        font-size:11px; font-family:'Courier New',monospace;
+        letter-spacing:0.5px; word-break:break-all; line-height:1.6;
+        cursor:text; outline:none;">—</textarea>
+      <button id="copySystemCodeBtn" onclick="copyMachineId()" style="
+        width:100%; margin-top:8px;
+        background:rgba(99,179,237,0.15); border:1px solid rgba(99,179,237,0.3);
+        border-radius:6px; padding:8px 12px; color:#63b3ed; font-size:12px; cursor:pointer;
+        transition:transform .1s, background .15s, box-shadow .15s;">
+        📋 Click to Copy System Code
+      </button>
+    </div>
+ 
+    <div id="licActivationForm">
+    <!-- License key input -->
+    <div style="margin-bottom:20px;">
+      <label style="font-size:12px; color:#90cdf4; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:.6px;">
+        <span id="licKeyLabel">Activation Key</span>
+      </label>
+      <textarea id="licKeyInput" rows="4" placeholder="Paste your activation key here..." style="
+        width:100%; box-sizing:border-box; resize:vertical;
+        background:rgba(255,255,255,0.06); border:1px solid rgba(99,179,237,0.25);
+        border-radius:8px; padding:10px 14px; color:#e2e8f0; font-size:12px;
+        font-family:'Courier New',monospace; outline:none;"></textarea>
+    </div>
+ 
+    <!-- Error message -->
+    <div id="licError" style="
+      display:none; background:rgba(254,178,178,0.1); border:1px solid rgba(254,178,178,0.3);
+      border-radius:8px; padding:10px 14px; color:#fc8181; font-size:13px; margin-bottom:16px;"></div>
+ 
+    <!-- Activate button -->
+    <button id="licSubmitBtn" onclick="submitLicense()" style="
+      width:100%; padding:14px; border:none; border-radius:10px; cursor:pointer;
+      background:linear-gradient(135deg,#3182ce,#2c5282); color:#fff;
+      font-size:15px; font-weight:600; letter-spacing:.3px;
+      box-shadow:0 4px 20px rgba(49,130,206,0.4); transition:transform .1s, box-shadow .1s, filter .1s;">
+      ✅ Activate License
+    </button>
+    </div><!-- end licActivationForm -->
+ 
+    <p style="text-align:center; margin:16px 0 0; font-size:12px; color:#718096;">
+      LabSoft — Licensed Software &nbsp;|&nbsp; Contact: <span style="color:#63b3ed;">developer</span>
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     FEATURE LOCK MODAL — shown when a gated feature is opened
+     ══════════════════════════════════════════════════ -->
+<div id="featureLockModal" style="
+  display:none; position:fixed; inset:0; z-index:99997;
+  background:rgba(10,12,20,0.75); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center;">
+  <div style="
+    width:min(420px, 92vw); background:#1a1d27; border:1px solid #2a2d3e;
+    border-radius:14px; padding:28px; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+    <div id="flm-title" style="font-size:17px; font-weight:700; color:#e2e8f0; margin-bottom:10px;">🔒 Feature Locked</div>
+    <div id="flm-body" style="font-size:13px; color:#94a3b8; line-height:1.5; margin-bottom:16px;"></div>
+
+    <!-- System Code display -->
+    <div style="background:rgba(99,179,237,0.08); border:1px solid rgba(99,179,237,0.2);
+      border-radius:10px; padding:12px 14px; margin-bottom:16px;">
+      <div style="font-size:11px; color:#90cdf4; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px;">
+        Your System Code <span style="color:#718096; font-size:10px; text-transform:none;">(send this to the developer)</span>
+      </div>
+      <textarea id="flm-system-code" readonly rows="2" onclick="this.select()" style="
+        width:100%; box-sizing:border-box; resize:none;
+        background:rgba(0,0,0,0.3); border:1px solid rgba(99,179,237,0.3);
+        border-radius:8px; padding:8px 10px; color:#f6e05e;
+        font-size:11px; font-family:'Courier New',monospace;
+        letter-spacing:0.5px; word-break:break-all; line-height:1.6;
+        cursor:text; outline:none;">—</textarea>
+      <button id="flm-copy-code-btn" onclick="copyFeatureLockSystemCode()" style="
+        width:100%; margin-top:6px;
+        background:rgba(99,179,237,0.15); border:1px solid rgba(99,179,237,0.3);
+        border-radius:6px; padding:7px 12px; color:#63b3ed; font-size:12px; cursor:pointer;
+        transition:transform .1s, background .15s, box-shadow .15s;">
+        📋 Click to Copy System Code
+      </button>
+    </div>
+
+    <label style="font-size:12px; color:#94a3b8; display:block; margin-bottom:6px;">License Key</label>
+    <textarea id="flm-key-input" rows="3" placeholder="Paste the upgraded license key here"
+      style="width:100%; box-sizing:border-box; background:#252836; color:#e2e8f0; border:1px solid #2a2d3e;
+             border-radius:8px; padding:10px; font-family:Consolas,monospace; font-size:12px; resize:vertical;"></textarea>
+    <div id="flm-status" style="font-size:12px; margin-top:8px; min-height:16px;"></div>
+    <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+      <button onclick="closeFeatureLockModal()" style="
+        padding:9px 16px; border-radius:8px; border:1px solid #2a2d3e; background:transparent;
+        color:#94a3b8; font-size:13px; cursor:pointer;">Cancel</button>
+      <button onclick="submitFeatureUnlock()" style="
+        padding:9px 18px; border-radius:8px; border:none; background:linear-gradient(135deg,#3182ce,#2c5282);
+        color:#fff; font-size:13px; font-weight:600; cursor:pointer;">Activate</button>
+    </div>
+  </div>
+</div>
+ 
+<script>
+// ──────────────────────────────────────────────
+// LICENSE SYSTEM — Client Side
+// ──────────────────────────────────────────────
+let _licenseValid = false;
+let _isRenewal = false;
+let _systemCode = null; // cached from /api/license/status so it's available for the feature-lock modal too
+ 
+// ──────────────────────────────────────────────
+// FEATURE GATING — Client Side
+// ──────────────────────────────────────────────
+// Bit values must match FEATURE_* constants in app.py
+const FEATURE_BITS = {
+  appointments:     0x0001,
+  import_export:    0x0002,
+  backup:           0x0004,
+  form_designer:    0x0008,
+  lab_test_bill:    0x0010,
+  test_catalog:     0x0020,
+  interpretations:  0x0040,
+  test_stages:      0x0080,
+  other_lab_tests:  0x0100,
+  collections:      0x0200,
+  reference_tables: 0x0400,
+  whatsapp:         0x1000,
+};
+const FEATURE_LABELS = {
+  appointments:     'Appointments',
+  import_export:    'Excel/PDF Import & Export',
+  backup:           'Backup & Restore',
+  form_designer:    'Form Designer',
+  lab_test_bill:    'Lab Test Bill',
+  test_catalog:     'Test Catalog',
+  interpretations:  'Interpretations',
+  test_stages:      'Test Stages',
+  other_lab_tests:  'Other Lab Tests',
+  collections:      'Collections',
+  reference_tables: 'Reference Tables',
+  whatsapp:         'WhatsApp Sharing',
+};
+// Pages whose entire nav item + page should be locked (vs. a single button)
+const LOCKED_PAGES = {
+  appointments:    'appointments',
+  backup:          'backup',
+  labtest:         'lab_test_bill',
+  collections:     'collections',
+  tests:           'test_catalog',
+  interpretations: 'interpretations',
+  reftables:       'reference_tables',
+  calculations:    'test_catalog',
+  stages:          'test_stages',
+  otherlabtests:   'other_lab_tests',
+};
+
+let _featureBitmask = 0xFFFF; // optimistic default until /api/license/status responds
+
+function hasFeature(key) {
+  return !!(_featureBitmask & FEATURE_BITS[key]);
+}
+
+function applyFeatureLocksToNav() {
+  // Fully hide nav items for disabled features (instead of showing a lock badge)
+  Object.entries(LOCKED_PAGES).forEach(([page, featKey]) => {
+    const navBtn = document.querySelector(`.nav-item[data-page="${page}"]`);
+    if (!navBtn) return;
+    if (!hasFeature(featKey)) {
+      navBtn.style.display = 'none';
+      navBtn.classList.add('nav-locked');
+      // If the now-hidden page happens to be active, fall back to dashboard
+      if (navBtn.classList.contains('active') && typeof showPage === 'function') {
+        showPage('dashboard');
+      }
+    } else {
+      navBtn.style.display = '';
+      navBtn.classList.remove('nav-locked');
+    }
+  });
+
+  // Form Designer settings sub-tab
+  const designTab = document.getElementById('stab-design');
+  if (designTab) {
+    designTab.style.display = hasFeature('form_designer') ? '' : 'none';
+  }
+
+  // Patients / doctors import-export controls
+  document.querySelectorAll(
+    "button[onclick*=\"toggleDropdown('patients-dl-menu'\"], button[onclick*=\"toggleDropdown('patients-ul-menu'\"], " +
+    "button[onclick*=\"toggleDropdown('doctors-dl-menu'\"], button[onclick*=\"toggleDropdown('doctors-ul-menu'\"]"
+  ).forEach(btn => {
+    btn.style.display = hasFeature('import_export') ? '' : 'none';
+  });
+
+  // Report list "Share via WhatsApp" buttons
+  document.querySelectorAll('.whatsapp-share-btn').forEach(btn => {
+    btn.style.display = hasFeature('whatsapp') ? '' : 'none';
+  });
+}
+
+function showFeatureLockModal(featKey) {
+  const label = FEATURE_LABELS[featKey] || 'This feature';
+  document.getElementById('flm-title').textContent = `🔒 ${label} Locked`;
+  document.getElementById('flm-body').textContent =
+    `${label} isn't included in your current plan. Enter an upgraded license key from your provider to unlock it.`;
+  document.getElementById('flm-key-input').value = '';
+  document.getElementById('flm-status').textContent = '';
+  document.getElementById('flm-system-code').value = _systemCode || '—';
+  document.getElementById('featureLockModal').style.display = 'flex';
+}
+
+async function copyFeatureLockSystemCode() {
+  const el = document.getElementById('flm-system-code');
+  const btn = document.getElementById('flm-copy-code-btn');
+  const code = (el.value || el.textContent || '').trim();
+  if (!code || code === '—') return;
+  if (btn) {
+    btn.style.transform = 'scale(0.95)';
+    btn.style.background = 'rgba(99,179,237,0.35)';
+    btn.style.boxShadow = '0 0 0 3px rgba(99,179,237,0.4)';
+    setTimeout(() => {
+      btn.style.transform = '';
+      btn.style.background = 'rgba(99,179,237,0.15)';
+      btn.style.boxShadow = '';
+    }, 180);
+  }
+  try {
+    await navigator.clipboard.writeText(code);
+    if (btn) { const orig = btn.textContent; btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = orig, 2000); }
+    showToastMsg('✅ System Code copied! Paste it to the developer.');
+  } catch (e) {
+    el.select();
+    document.execCommand('copy');
+    if (btn) { const orig = btn.textContent; btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = orig, 2000); }
+    showToastMsg('✅ System Code copied!');
+  }
+}
+
+function closeFeatureLockModal() {
+  document.getElementById('featureLockModal').style.display = 'none';
+}
+
+async function submitFeatureUnlock() {
+  const key = document.getElementById('flm-key-input').value.trim();
+  const statusEl = document.getElementById('flm-status');
+  if (!key) {
+    statusEl.textContent = 'Please paste a license key.';
+    statusEl.style.color = '#ef4444';
+    return;
+  }
+  statusEl.textContent = 'Activating…';
+  statusEl.style.color = '#94a3b8';
+  try {
+    const res = await fetch('/api/license/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ license_key: key })
+    });
+    const data = await res.json();
+    if (res.ok && data.success !== false) {
+      statusEl.textContent = '✅ Activated! Reloading…';
+      statusEl.style.color = '#22c55e';
+      setTimeout(() => window.location.reload(), 900);
+    } else {
+      statusEl.textContent = data.message || 'Activation failed.';
+      statusEl.style.color = '#ef4444';
+    }
+  } catch (e) {
+    statusEl.textContent = 'Could not reach the server.';
+    statusEl.style.color = '#ef4444';
+  }
+}
+
+// Call before running a gated action. Returns true if allowed to proceed;
+// otherwise shows the lock modal and returns false.
+function guardFeature(featKey) {
+  if (hasFeature(featKey)) return true;
+  showFeatureLockModal(featKey);
+  return false;
+}
+
+async function checkLicenseOnLoad() {
+  try {
+    const res = await fetch('/api/license/status');
+    const data = await res.json();
+    _licenseValid = data.valid;
+    if (data.system_code) _systemCode = data.system_code;
+    if (typeof data.features === 'number') _featureBitmask = data.features;
+    applyFeatureLocksToNav();
+ 
+    if (!data.clock_ok) {
+      // Clock tamper detected — show special message, block app
+      showLicenseOverlay(data.system_code, false, true, data.message);
+      disableApp();
+    } else if (!data.valid) {
+      showLicenseOverlay(data.system_code, data.expired, false, null, data.expiry);
+      disableApp();
+    } else {
+      hideLicenseOverlay();
+      // Show expiry warning if ≤ 30 days left
+      if (data.days_left <= 30) {
+        setTimeout(() => showLicenseWarning(data.days_left, data.expiry), 1000);
+      }
+    }
+    updateAppFooterLicenseLine(data);
+  } catch(e) {
+    console.error('License check failed:', e);
+  }
+}
+ 
+function formatExpiryDate(expiryStr) {
+  if (!expiryStr) return '';
+  const d = new Date(expiryStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return expiryStr;
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+ 
+function updateAppFooterLicenseLine(data) {
+  const el = document.getElementById('app-footer-license-line');
+  if (!el) return;
+  if (data.valid && data.expiry) {
+    el.textContent = `This software is fully Licensed. License will expire on ${formatExpiryDate(data.expiry)} · ${data.days_left} days remaining`;
+  } else if (data.expired && data.expiry) {
+    el.textContent = `License expired on ${formatExpiryDate(data.expiry)}. Please renew.`;
+  } else {
+    el.textContent = '';
+  }
+}
+ 
+function showLicenseOverlay(machineId, isExpired, isClockTamper, clockMsg, currentExpiry) {
+  const midEl = document.getElementById('licMachineId');
+  if (midEl.tagName === 'TEXTAREA') midEl.value = machineId || '...';
+  else midEl.textContent = machineId || '...';
+  const title    = document.getElementById('licModalTitle');
+  const subtitle = document.getElementById('licModalSubtitle');
+  const form     = document.getElementById('licActivationForm');
+ 
+  if (isClockTamper) {
+    _isRenewal = true;
+    title.textContent = '⏰ Clock Tampering Detected';
+    title.style.color = '#fc8181';
+    subtitle.innerHTML =
+      `<span style="color:#fc8181;">${clockMsg || 'System clock has been rolled back.'}</span><br>
+       <span style="color:#a0aec0; margin-top:6px; display:block;">
+         Please restore the correct system date and time, then contact the developer with your System Code to receive a renewal key.
+       </span>`;
+    if (form) form.style.display = '';   // show renewal form
+    // Update labels to say "Renewal"
+    const keyLabel = document.getElementById('licKeyLabel');
+    const keyInput = document.getElementById('licKeyInput');
+    const activateBtn = document.getElementById('licSubmitBtn');
+    if (keyLabel) keyLabel.textContent = 'Renewal Key';
+    if (keyInput) keyInput.placeholder = 'Paste your renewal key here...';
+    if (activateBtn) { activateBtn.textContent = '🔄 Renew License'; activateBtn.style.background = 'linear-gradient(135deg,#c53030,#9b2c2c)'; }
+  } else if (isExpired) {
+    _isRenewal = true;
+    title.textContent = '🔄 License Renewal Required';
+    title.style.color = '#f6ad55';
+    subtitle.textContent = 'Your license has expired. Send your System Code to the developer for a renewal key.';
+    if (form) form.style.display = '';
+    // Update labels and button to say "Renewal" not "Activation"
+    const keyLabel = document.getElementById('licKeyLabel');
+    const keyInput = document.getElementById('licKeyInput');
+    const activateBtn = document.getElementById('licSubmitBtn');
+    if (keyLabel) keyLabel.textContent = 'Renewal Key';
+    if (keyInput) keyInput.placeholder = 'Paste your renewal key here...';
+    if (activateBtn) { activateBtn.textContent = '🔄 Renew License'; activateBtn.style.background = 'linear-gradient(135deg,#c05621,#7b341e)'; }
+  } else {
+    _isRenewal = false;
+    title.textContent = '🔐 Software Activation Required';
+    title.style.color = '#63b3ed';
+    subtitle.textContent = 'Send your System Code to the developer to receive an activation key.';
+    if (form) form.style.display = '';
+    // Restore default activation labels
+    const keyLabel = document.getElementById('licKeyLabel');
+    const keyInput = document.getElementById('licKeyInput');
+    const activateBtn = document.getElementById('licSubmitBtn');
+    if (keyLabel) keyLabel.textContent = 'Activation Key';
+    if (keyInput) keyInput.placeholder = 'Paste your activation key here...';
+    if (activateBtn) { activateBtn.textContent = '✅ Activate License'; activateBtn.style.background = 'linear-gradient(135deg,#3182ce,#2c5282)'; }
+  }
+  document.getElementById('licenseOverlay').style.display = 'flex';
+}
+ 
+function hideLicenseOverlay() {
+  document.getElementById('licenseOverlay').style.display = 'none';
+}
+ 
+function disableApp() {
+  // Blur AND block all interaction with the main content
+  const main = document.querySelector('.main-content') || document.querySelector('main');
+  if (main) {
+    main.style.filter = 'blur(6px) brightness(0.25)';
+    main.style.pointerEvents = 'none';
+    main.style.userSelect = 'none';
+  }
+  // Also block any keyboard interaction on the page body
+  document.body.setAttribute('data-license-blocked', 'true');
+}
+ 
+function enableApp() {
+  const main = document.querySelector('.main-content') || document.querySelector('main');
+  if (main) {
+    main.style.filter = '';
+    main.style.pointerEvents = '';
+    main.style.userSelect = '';
+  }
+  document.body.removeAttribute('data-license-blocked');
+}
+ 
+async function copyMachineId() {
+  const el = document.getElementById('licMachineId');
+  const btn = document.getElementById('copySystemCodeBtn');
+  const code = el.value || el.textContent;
+  // Click press effect
+  if (btn) {
+    btn.style.transform = 'scale(0.95)';
+    btn.style.background = 'rgba(99,179,237,0.35)';
+    btn.style.boxShadow = '0 0 0 3px rgba(99,179,237,0.4)';
+    setTimeout(() => {
+      btn.style.transform = '';
+      btn.style.background = 'rgba(99,179,237,0.15)';
+      btn.style.boxShadow = '';
+    }, 180);
+  }
+  try {
+    await navigator.clipboard.writeText(code.trim());
+    if (btn) { const orig = btn.textContent; btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = orig, 2000); }
+    showToastMsg('✅ System Code copied! Paste it to the developer.');
+  } catch(e) {
+    el.select();
+    document.execCommand('copy');
+    if (btn) { const orig = btn.textContent; btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = orig, 2000); }
+    showToastMsg('✅ System Code copied!');
+  }
+}
+ 
+async function submitLicense() {
+  const btn = document.getElementById('licSubmitBtn');
+  // Click press effect
+  if (btn) {
+    btn.style.transform = 'scale(0.96)';
+    btn.style.filter = 'brightness(1.2)';
+    btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)';
+    setTimeout(() => {
+      btn.style.transform = '';
+      btn.style.filter = '';
+      btn.style.boxShadow = '';
+    }, 180);
+  }
+  const key = document.getElementById('licKeyInput').value.trim();
+  const errEl = document.getElementById('licError');
+  errEl.style.display = 'none';
+ 
+  const isRenewal = _isRenewal;
+  if (!key) { showLicErr(isRenewal ? 'Please paste your renewal key.' : 'Please paste your activation key.'); return; }
+ 
+  try {
+    const res = await fetch('/api/license/activate', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ license_key: key })
+    });
+    const data = await res.json();
+    if (data.success) {
+      _licenseValid = true;
+      _isRenewal = false;
+      showToastMsg(isRenewal ? '✅ License renewed successfully! Reloading...' : '✅ License activated successfully! Loading LabSoft...');
+      setTimeout(() => { window.location.reload(); }, 1500);
+    } else {
+      showLicErr(data.message || 'Activation failed.');
+    }
+  } catch(e) {
+    showLicErr('Network error. Please try again.');
+  }
+}
+ 
+function showLicErr(msg) {
+  const el = document.getElementById('licError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+ 
+function showLicenseWarning(daysLeft, expiry) {
+  const el = document.getElementById('expiryWarningText');
+  el.textContent = `Your LabSoft license expires in ${daysLeft} day${daysLeft === 1 ? '' : 's'} (${formatExpiryDate(expiry)}). Please renew soon to avoid interruption.`;
+  document.getElementById('expiryWarningOverlay').style.display = 'flex';
+}
+ 
+function closeExpiryWarning() {
+  document.getElementById('expiryWarningOverlay').style.display = 'none';
+}
+ 
+function showToastMsg(msg, duration = 3500) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+ 
+// Run license check when page loads
+window.addEventListener('DOMContentLoaded', checkLicenseOnLoad);
+ 
+// ──────────────────────────────────────────────
+// HEARTBEAT — previously pinged the backend so it could auto-shut-down
+// once every tab closed. That watchdog was killing the server during
+// normal use (background-tab timer throttling made pings arrive late),
+// so it's been disabled server-side. Pinging is no longer needed.
+// ──────────────────────────────────────────────
+</script>
+ 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/static/js/app.js?v=20260915-1"></script>
+ 
+<script>
+(function loadFooterSessionCount() {
+  fetch('/api/session/count')
+    .then(function(r){ return r.json(); })
+    .then(function(d){ document.getElementById('footer-session-count').textContent = d.count ?? '—'; })
+    .catch(function(){ document.getElementById('footer-session-count').textContent = '—'; });
+})();
+</script>
+ 
+</body>
+ 
+</html>
